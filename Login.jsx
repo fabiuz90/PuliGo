@@ -3,7 +3,7 @@ import { Mail, Lock, Loader2, ShieldAlert } from "lucide-react";
 import { Image } from "@/image";
 import { supabase } from "@/supabase";
 
-const LOGO_URL = "https://media.db.com/images/public/6a7a4c2b1ee07a9df8e05052/c3ae44728_1fab1a1f-26ea-40c2-8536-ceafc55ebb98.png";
+const LOGO_URL = "/puligo-icon.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");

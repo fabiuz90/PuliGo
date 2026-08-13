@@ -1,7 +1,6 @@
 
 
 const WIX_MEDIA_HOSTS = {
-  "media.db.com": "/images/public/",
   "static.wixstatic.com": "/media/",
 }
 
