@@ -1,28 +1,29 @@
 import { useEffect } from 'react';
-import { Toaster } from "@/components/ui/toaster"
-import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClientInstance } from '@/lib/query-client'
+import { Toaster } from '@/toaster';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClientInstance } from '@/query-client';
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
-import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import ScrollToTop from './components/ScrollToTop';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
-import AppLayout from '@/components/AppLayout';
-import AdminRoute from '@/components/AdminRoute';
-import Admin from '@/pages/Admin';
-import Dashboard from '@/pages/Dashboard';
-import Appalti from '@/pages/Appalti';
-import Dipendenti from '@/pages/Dipendenti';
-import Turni from '@/pages/Turni';
-import Buchi from '@/pages/Buchi';
-import ResocontoMensile from '@/pages/ResocontoMensile';
-import MarginiAppalti from '@/pages/MarginiAppalti';
-import Statistiche from '@/pages/Statistiche';
+
+import PageNotFound from '@/PageNotFound';
+import { AuthProvider, useAuth } from '@/AuthContext';
+import UserNotRegisteredError from '@/UserNotRegisteredError';
+import ScrollToTop from '@/ScrollToTop';
+import ProtectedRoute from '@/ProtectedRoute';
+import Login from '@/Login';
+import Register from '@/Register';
+import ForgotPassword from '@/ForgotPassword';
+import ResetPassword from '@/ResetPassword';
+import AppLayout from '@/AppLayout';
+import AdminRoute from '@/AdminRoute';
+import Admin from '@/Admin';
+import Dashboard from '@/Dashboard';
+import Appalti from '@/Appalti';
+import Dipendenti from '@/Dipendenti';
+import Turni from '@/Turni';
+import Buchi from '@/Buchi';
+import ResocontoMensile from '@/ResocontoMensile';
+import MarginiAppalti from '@/MarginiAppalti';
+import Statistiche from '@/Statistiche';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
