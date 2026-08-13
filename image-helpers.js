@@ -1,4 +1,4 @@
-import db from '@/db'; auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+
 
 const WIX_MEDIA_HOSTS = {
   "media.db.com": "/images/public/",
