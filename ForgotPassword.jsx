@@ -2,9 +2,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { Button } from "@/ui/button";
-import { Input } from "@/ui/input";
-import { Label } from "@/ui/label";
+import { Button } from "@/button";
+import { Input } from "@/input";
+import { Label } from "@/label";
 import { Mail, ArrowLeft, Loader2 } from "lucide-react";
 import AuthLayout from "@/AuthLayout";
 

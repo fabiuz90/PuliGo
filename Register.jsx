@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { Button } from "@/ui/button";
-import { Input } from "@/ui/input";
-import { Label } from "@/ui/label";
+import { Button } from "@/button";
+import { Input } from "@/input";
+import { Label } from "@/label";
 import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/input-otp";
 import AuthLayout from "@/AuthLayout";
 import GoogleIcon from "@/GoogleIcon";
 import { toast } from "@/use-toast";
