@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, FileText, Users, CalendarDays, AlertTriangle, ShieldCheck, LogOut, BarChart3, TrendingUp, ChevronLeft, Trash2 } from 'lucide-react';
 import { useAuth } from '@/AuthContext';
-import useDrawerParam from '@/hooks/useDrawerParam';
+import useDrawerParam from '@/useDrawerParam';
 import BrandLogo from '@/BrandLogo';
 import MobileNav from '@/MobileNav';
 import DeleteAccountModal from '@/DeleteAccountModal';

@@ -1,7 +1,7 @@
 
 
 import * as React from "react"
-import { useSize } from "@/hooks/use-size"
+import { useSize } from "@/use-size"
 import { cn } from "@/utils"
 import {
   buildSrcSet,

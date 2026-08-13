@@ -7,7 +7,7 @@ import { Plus, CalendarDays, List, Copy, User, Trash2 } from 'lucide-react';
 import { useToast } from '@/use-toast';
 import { useAuth } from '@/AuthContext';
 import useOperationsData from '@/useOperationsData';
-import useDrawerParam from '@/hooks/useDrawerParam';
+import useDrawerParam from '@/useDrawerParam';
 import PullToRefresh from '@/PullToRefresh';
 import ShiftForm from '@/ShiftForm';
 import ShiftList from '@/ShiftList';

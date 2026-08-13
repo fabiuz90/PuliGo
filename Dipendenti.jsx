@@ -5,7 +5,7 @@ import { Plus, Phone, Pencil, Trash2, Building2, MessageCircle } from 'lucide-re
 
 import { useAuth } from '@/AuthContext';
 import useOperationsData from '@/useOperationsData';
-import useDrawerParam from '@/hooks/useDrawerParam';
+import useDrawerParam from '@/useDrawerParam';
 import PullToRefresh from '@/PullToRefresh';
 import EmployeeForm from '@/EmployeeForm';
 import WhatsAppProgramModal from '@/WhatsAppProgramModal';

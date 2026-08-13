@@ -9,7 +9,7 @@ import { EmptyState, Loading, Modal, PageHeader, StatusBadge, inputClass } from 
 import ExportButton from '@/ExportButton';
 import { fileMonthSuffix } from '@/reportCalc';
 import { nextContractCode } from '@/codes';
-import useDrawerParam from '@/hooks/useDrawerParam';
+import useDrawerParam from '@/useDrawerParam';
 
 const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 const filters = [['all', 'Tutti'], ['active', 'Attivi'], ['inactive', 'Inattivi'], ['with_services', 'Con servizi'], ['no_services', 'Senza servizi']];

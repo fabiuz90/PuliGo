@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Trash2, X } from 'lucide-react';
 
 import { useToast } from '@/use-toast';
-import useIsMobile from '@/hooks/useIsMobile';
+import useIsMobile from '@/useIsMobile';
 
 const CONFIRM_TEXT = 'ELIMINA';
 

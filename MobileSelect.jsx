@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Drawer } from 'vaul';
 import { Check, ChevronDown } from 'lucide-react';
-import useIsMobile from '@/hooks/useIsMobile';
+import useIsMobile from '@/useIsMobile';
 
 // Native <select> on desktop, vaul bottom-sheet picker on mobile.
 export default function MobileSelect({ value, onChange, options, placeholder, className, required }) {
