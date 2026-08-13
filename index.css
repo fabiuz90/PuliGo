@@ -107,4 +107,10 @@
     background: #d6f36a;
     color: #102a2b;
   }
+  input,
+textarea,
+select {
+  color: #102a2b;
+  background-color: #ffffff;
+}
 }
