@@ -1,6 +1,6 @@
 
 
-import { Image } from "@/ui/image";
+import { Image } from "@/image";
 
 export const CLEANPLAN_LOGO =
   "https://media.db.com/images/public/6a7a4c2b1ee07a9df8e05052/c3ae44728_1fab1a1f-26ea-40c2-8536-ceafc55ebb98.png";
