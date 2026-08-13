@@ -1,0 +1,125 @@
+{
+  "name": "Contract",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Codice univoco permanente dell'appalto (es. APP-001)"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "site_name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "monthly_revenue": {
+      "type": "number",
+      "description": "Ricavo mensile dell'appalto in euro, usato per il calcolo dei margini"
+    },
+    "service_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day_of_week": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          },
+          "employees_required": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "day_of_week",
+          "start_time",
+          "end_time",
+          "employees_required"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "client_name",
+    "site_name",
+    "address",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

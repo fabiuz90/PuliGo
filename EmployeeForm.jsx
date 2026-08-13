@@ -1,0 +1,11 @@
+import { useState } from 'react';
+import { inputClass } from '@/components/common';
+import MobileSelect from '@/components/MobileSelect';
+export default function EmployeeForm({ initial, contracts, onSubmit, saving }) {
+  const [form,setForm]=useState(initial||{first_name:'',last_name:'',phone:'',status:'active',contract_ids:[],hourly_cost:''});
+  const set=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const toggle=id=>set('contract_ids',(form.contract_ids||[]).includes(id)?form.contract_ids.filter(x=>x!==id):[...(form.contract_ids||[]),id]);
+  return <form onSubmit={e=>{e.preventDefault();onSubmit(form)}} className="p-6 space-y-4"><div className="grid grid-cols-2 gap-4"><label className="text-sm font-medium">Nome<input required className={`${inputClass} mt-1.5`} value={form.first_name} onChange={e=>set('first_name',e.target.value)}/></label><label className="text-sm font-medium">Cognome<input required className={`${inputClass} mt-1.5`} value={form.last_name} onChange={e=>set('last_name',e.target.value)}/></label><label className="text-sm font-medium">Telefono<input required type="tel" className={`${inputClass} mt-1.5`} value={form.phone} onChange={e=>set('phone',e.target.value)}/></label><label className="text-sm font-medium">Stato<MobileSelect className={`${inputClass} mt-1.5`} value={form.status} onChange={v=>set('status',v)} options={[{value:'active',label:'Attivo'},{value:'inactive',label:'Inattivo'}]} /></label><label className="text-sm font-medium">Costo orario (€)<input type="number" step="0.01" min="0" placeholder="es. 12.50" className={`${inputClass} mt-1.5`} value={form.hourly_cost ?? ''} onChange={e=>set('hourly_cost',e.target.value===''?'':Number(e.target.value))}/></label></div>
+    <div><h3 className="font-semibold mb-2">Appalti assegnati</h3><div className="grid grid-cols-2 gap-2">{contracts.map(c=><label key={c.id} className="flex gap-2 items-center border rounded-xl px-3 py-2.5 text-sm"><input type="checkbox" checked={(form.contract_ids||[]).includes(c.id)} onChange={()=>toggle(c.id)}/>{c.site_name}</label>)}</div></div>
+    <button disabled={saving} className="w-full rounded-xl bg-[#163f3d] text-white py-3 font-semibold disabled:opacity-50">{saving?'Salvataggio…':'Salva dipendente'}</button></form>;
+}
