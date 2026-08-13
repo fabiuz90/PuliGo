@@ -8,7 +8,7 @@ import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/ui/input-otp";
 import AuthLayout from "@/AuthLayout";
 import GoogleIcon from "@/GoogleIcon";
-import { toast } from "@/ui/use-toast";
+import { toast } from "@/use-toast";
 import { safeReturnTo } from "@/authReturnTo";
 
 export default function Register() {

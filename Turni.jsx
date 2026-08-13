@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { addDays, addWeeks, format, parseISO, startOfWeek } from 'date-fns';
 import { Plus, CalendarDays, List, Copy, User, Trash2 } from 'lucide-react';
 
-import { useToast } from '@/ui/use-toast';
+import { useToast } from '@/use-toast';
 import { useAuth } from '@/AuthContext';
 import useOperationsData from '@/hooks/useOperationsData';
 import useDrawerParam from '@/hooks/useDrawerParam';
