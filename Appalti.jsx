@@ -3,7 +3,7 @@ import db from '@/db';
 import { useMemo, useState } from 'react';
 import { Plus, MapPin, Pencil, Trash2, Clock3, Search } from 'lucide-react';
 
-import useOperationsData from '@/hooks/useOperationsData';
+import useOperationsData from '@/useOperationsData';
 import ContractForm from '@/ContractForm';
 import { EmptyState, Loading, Modal, PageHeader, StatusBadge, inputClass } from '@/common';
 import ExportButton from '@/ExportButton';

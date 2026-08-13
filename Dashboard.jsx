@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { FileText, Users, CalendarDays, AlertTriangle, ArrowRight, TrendingUp, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import useOperationsData from '@/hooks/useOperationsData';
+import useOperationsData from '@/useOperationsData';
 import { buildCoverage } from '@/coverage';
 import { Loading, PageHeader } from '@/common';
 import ExportButton from '@/ExportButton';

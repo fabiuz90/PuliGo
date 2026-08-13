@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import useOperationsData from '@/hooks/useOperationsData';
+import useOperationsData from '@/useOperationsData';
 import { Loading, PageHeader, EmptyState } from '@/common';
 import ExportButton from '@/ExportButton';
 import { buildAppaltoMargins, monthLabel, eur, MONTHS_IT, yearsList } from '@/reportCalc';

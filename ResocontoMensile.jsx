@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import useOperationsData from '@/hooks/useOperationsData';
+import useOperationsData from '@/useOperationsData';
 import { Loading, PageHeader, EmptyState } from '@/common';
 import ExportButton from '@/ExportButton';
 import MobileSelect from '@/MobileSelect';

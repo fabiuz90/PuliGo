@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Plus, Phone, Pencil, Trash2, Building2, MessageCircle } from 'lucide-react';
 
 import { useAuth } from '@/AuthContext';
-import useOperationsData from '@/hooks/useOperationsData';
+import useOperationsData from '@/useOperationsData';
 import useDrawerParam from '@/hooks/useDrawerParam';
 import PullToRefresh from '@/PullToRefresh';
 import EmployeeForm from '@/EmployeeForm';

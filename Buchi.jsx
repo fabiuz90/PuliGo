@@ -1,4 +1,4 @@
-import useOperationsData from '@/hooks/useOperationsData';
+import useOperationsData from '@/useOperationsData';
 import { buildCoverage } from '@/coverage';
 import GapCard from '@/GapCard';
 import { EmptyState, Loading, PageHeader } from '@/common';
