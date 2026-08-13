@@ -1,4 +1,4 @@
-const db = globalThis.__B44_DB__ || { ... };
+import db from '@/db';
 
 import { useState } from 'react';
 import { Plus, Phone, Pencil, Trash2, Building2, MessageCircle } from 'lucide-react';
