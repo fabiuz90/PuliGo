@@ -1,17 +1,17 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/ui/button";
+import { Input } from "@/ui/input";
+import { Label } from "@/ui/label";
 import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
-import { toast } from "@/components/ui/use-toast";
-import { safeReturnTo } from "@/lib/authReturnTo";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/ui/input-otp";
+import AuthLayout from "@/AuthLayout";
+import GoogleIcon from "@/GoogleIcon";
+import { toast } from "@/ui/use-toast";
+import { safeReturnTo } from "@/authReturnTo";
 
 export default function Register() {
   const [email, setEmail] = useState("");

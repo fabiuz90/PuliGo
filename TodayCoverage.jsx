@@ -1,5 +1,5 @@
 import { Clock, Users } from 'lucide-react';
-import { contractName } from '@/lib/codes';
+import { contractName } from '@/codes';
 export default function TodayCoverage({ services }) {
   const colors={covered:'bg-emerald-50 border-emerald-200 text-emerald-800',partial:'bg-orange-50 border-orange-200 text-orange-800',uncovered:'bg-red-50 border-red-200 text-red-800'};
   const labels={covered:'Coperto',partial:'Parziale',uncovered:'Scoperto'};

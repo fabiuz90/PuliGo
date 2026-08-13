@@ -2,7 +2,7 @@ import { format, parseISO } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { Clock, Users } from 'lucide-react';
-import { durationLabel } from '@/lib/coverage';
+import { durationLabel } from '@/coverage';
 export default function GapCard({ gap, employees }) {
   const names=gap.assignedIds.map(id=>{const e=employees.find(x=>x.id===id);return e?`${e.first_name} ${e.last_name}`:'—'}).join(', ');
   const color=gap.status==='partial'?'border-orange-200 bg-orange-50/40':'border-red-200 bg-red-50/40';

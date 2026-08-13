@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import ServiceRequirementsEditor from '@/components/ServiceRequirementsEditor';
-import { inputClass } from '@/components/common';
-import MobileSelect from '@/components/MobileSelect';
+import ServiceRequirementsEditor from '@/ServiceRequirementsEditor';
+import { inputClass } from '@/common';
+import MobileSelect from '@/MobileSelect';
 export default function ContractForm({ initial, onSubmit, saving }) {
   const [form, setForm] = useState(initial || { client_name:'', site_name:'', address:'', status:'active', service_requirements:[], monthly_revenue:'' });
   const set = (key, value) => setForm(f => ({...f,[key]:value}));

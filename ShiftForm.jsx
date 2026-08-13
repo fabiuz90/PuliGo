@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { inputClass } from '@/components/common';
-import MobileSelect from '@/components/MobileSelect';
-import { findConflict } from '@/lib/shiftConflict';
+import { inputClass } from '@/common';
+import MobileSelect from '@/MobileSelect';
+import { findConflict } from '@/shiftConflict';
 
 export default function ShiftForm({ initial, preset, contracts, employees, shifts, onSubmit, saving }) {
   const [form, setForm] = useState(initial || { employee_id: '', contract_id: preset.contract_id || '', date: preset.date || '', start_time: preset.start_time || '08:00', end_time: preset.end_time || '10:00' });

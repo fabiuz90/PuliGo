@@ -3,16 +3,16 @@ import db from '@/db';
 import { useState } from 'react';
 import { Plus, Phone, Pencil, Trash2, Building2, MessageCircle } from 'lucide-react';
 
-import { useAuth } from '@/lib/AuthContext';
+import { useAuth } from '@/AuthContext';
 import useOperationsData from '@/hooks/useOperationsData';
 import useDrawerParam from '@/hooks/useDrawerParam';
-import PullToRefresh from '@/components/PullToRefresh';
-import EmployeeForm from '@/components/EmployeeForm';
-import WhatsAppProgramModal from '@/components/WhatsAppProgramModal';
-import { EmptyState, Loading, Modal, PageHeader, StatusBadge } from '@/components/common';
-import ExportButton from '@/components/ExportButton';
-import { fileMonthSuffix } from '@/lib/reportCalc';
-import { nextEmpCode } from '@/lib/codes';
+import PullToRefresh from '@/PullToRefresh';
+import EmployeeForm from '@/EmployeeForm';
+import WhatsAppProgramModal from '@/WhatsAppProgramModal';
+import { EmptyState, Loading, Modal, PageHeader, StatusBadge } from '@/common';
+import ExportButton from '@/ExportButton';
+import { fileMonthSuffix } from '@/reportCalc';
+import { nextEmpCode } from '@/codes';
 
 export default function Dipendenti() {
   const { user } = useAuth();

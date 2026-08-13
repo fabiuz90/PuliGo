@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { inputClass } from '@/components/common';
-import MobileSelect from '@/components/MobileSelect';
+import { inputClass } from '@/common';
+import MobileSelect from '@/MobileSelect';
 const days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
 export default function ServiceRequirementsEditor({ value, onChange }) {
   const add = () => onChange([...value, { day_of_week: 1, start_time: '08:00', end_time: '10:00', employees_required: 1 }]);

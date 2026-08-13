@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import useOperationsData from '@/hooks/useOperationsData';
-import { Loading, PageHeader, EmptyState } from '@/components/common';
-import ExportButton from '@/components/ExportButton';
-import { buildAppaltoMargins, monthLabel, eur, MONTHS_IT, yearsList } from '@/lib/reportCalc';
-import { contractDisplay, empDisplay } from '@/lib/codes';
-import MobileSelect from '@/components/MobileSelect';
+import { Loading, PageHeader, EmptyState } from '@/common';
+import ExportButton from '@/ExportButton';
+import { buildAppaltoMargins, monthLabel, eur, MONTHS_IT, yearsList } from '@/reportCalc';
+import { contractDisplay, empDisplay } from '@/codes';
+import MobileSelect from '@/MobileSelect';
 
 export default function MarginiAppalti() {
   const data = useOperationsData();

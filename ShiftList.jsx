@@ -1,8 +1,8 @@
 import { format, parseISO } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
-import { EmptyState } from '@/components/common';
-import { appaltoColor } from '@/lib/appaltoColors';
+import { EmptyState } from '@/common';
+import { appaltoColor } from '@/appaltoColors';
 
 export default function ShiftList({ shifts, contracts, employees, onEdit, onDelete, appaltoColors }) {
   if (!shifts.length) return <EmptyState text="Nessun turno pianificato" />;

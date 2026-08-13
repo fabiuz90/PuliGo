@@ -4,9 +4,9 @@ import { useMemo, useState } from 'react';
 import { addDays, format } from 'date-fns';
 import { MessageCircle, Loader2 } from 'lucide-react';
 
-import { Modal } from '@/components/common';
-import { buildWeekProgramMessage, normalizePhone, weekStartFor } from '@/lib/whatsappProgram';
-import { empDisplay } from '@/lib/codes';
+import { Modal } from '@/common';
+import { buildWeekProgramMessage, normalizePhone, weekStartFor } from '@/whatsappProgram';
+import { empDisplay } from '@/codes';
 
 export default function WhatsAppProgramModal({ employee, shifts, contracts, currentUser, onClose }) {
   const [weekOption, setWeekOption] = useState('current');

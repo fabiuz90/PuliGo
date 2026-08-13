@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import WeekCalendar from '@/components/WeekCalendar';
-import { inputClass } from '@/components/common';
-import MobileSelect from '@/components/MobileSelect';
+import WeekCalendar from '@/WeekCalendar';
+import { inputClass } from '@/common';
+import MobileSelect from '@/MobileSelect';
 
 export default function EmployeeCalendarView({ shifts, contracts, employees, week, onEdit, onDelete, appaltoColors }) {
   const sorted = useMemo(

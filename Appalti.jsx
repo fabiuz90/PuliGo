@@ -4,11 +4,11 @@ import { useMemo, useState } from 'react';
 import { Plus, MapPin, Pencil, Trash2, Clock3, Search } from 'lucide-react';
 
 import useOperationsData from '@/hooks/useOperationsData';
-import ContractForm from '@/components/ContractForm';
-import { EmptyState, Loading, Modal, PageHeader, StatusBadge, inputClass } from '@/components/common';
-import ExportButton from '@/components/ExportButton';
-import { fileMonthSuffix } from '@/lib/reportCalc';
-import { nextContractCode } from '@/lib/codes';
+import ContractForm from '@/ContractForm';
+import { EmptyState, Loading, Modal, PageHeader, StatusBadge, inputClass } from '@/common';
+import ExportButton from '@/ExportButton';
+import { fileMonthSuffix } from '@/reportCalc';
+import { nextContractCode } from '@/codes';
 import useDrawerParam from '@/hooks/useDrawerParam';
 
 const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];

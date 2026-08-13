@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { inputClass } from '@/components/common';
-import MobileSelect from '@/components/MobileSelect';
+import { inputClass } from '@/common';
+import MobileSelect from '@/MobileSelect';
 export default function EmployeeForm({ initial, contracts, onSubmit, saving }) {
   const [form,setForm]=useState(initial||{first_name:'',last_name:'',phone:'',status:'active',contract_ids:[],hourly_cost:''});
   const set=(k,v)=>setForm(f=>({...f,[k]:v}));

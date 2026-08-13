@@ -4,21 +4,21 @@ import { useMemo, useState } from 'react';
 import { addDays, addWeeks, format, parseISO, startOfWeek } from 'date-fns';
 import { Plus, CalendarDays, List, Copy, User, Trash2 } from 'lucide-react';
 
-import { useToast } from '@/components/ui/use-toast';
-import { useAuth } from '@/lib/AuthContext';
+import { useToast } from '@/ui/use-toast';
+import { useAuth } from '@/AuthContext';
 import useOperationsData from '@/hooks/useOperationsData';
 import useDrawerParam from '@/hooks/useDrawerParam';
-import PullToRefresh from '@/components/PullToRefresh';
-import ShiftForm from '@/components/ShiftForm';
-import ShiftList from '@/components/ShiftList';
-import WeekCalendar from '@/components/WeekCalendar';
-import EmployeeCalendarView from '@/components/EmployeeCalendarView';
-import WeekNav from '@/components/WeekNav';
-import { Loading, Modal, PageHeader } from '@/components/common';
-import ExportButton from '@/components/ExportButton';
-import { buildAppaltoColorMap } from '@/lib/appaltoColors';
-import { shiftHours } from '@/lib/reportCalc';
-import { findConflict } from '@/lib/shiftConflict';
+import PullToRefresh from '@/PullToRefresh';
+import ShiftForm from '@/ShiftForm';
+import ShiftList from '@/ShiftList';
+import WeekCalendar from '@/WeekCalendar';
+import EmployeeCalendarView from '@/EmployeeCalendarView';
+import WeekNav from '@/WeekNav';
+import { Loading, Modal, PageHeader } from '@/common';
+import ExportButton from '@/ExportButton';
+import { buildAppaltoColorMap } from '@/appaltoColors';
+import { shiftHours } from '@/reportCalc';
+import { findConflict } from '@/shiftConflict';
 
 export default function Turni() {
   const data = useOperationsData();

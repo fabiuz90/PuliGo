@@ -2,7 +2,7 @@ import db from '@/db'; auth:{ isAuthenticated: async()=>false, me: async()=>null
 
 import * as React from "react"
 import { useSize } from "@/hooks/use-size"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils"
 import {
   buildSrcSet,
   buildTransformUrl,

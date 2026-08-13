@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import useOperationsData from '@/hooks/useOperationsData';
-import { Loading, PageHeader, EmptyState } from '@/components/common';
-import ExportButton from '@/components/ExportButton';
-import MobileSelect from '@/components/MobileSelect';
-import { shiftHours, shiftsInMonth, monthLabel, MONTHS_IT, yearsList } from '@/lib/reportCalc';
+import { Loading, PageHeader, EmptyState } from '@/common';
+import ExportButton from '@/ExportButton';
+import MobileSelect from '@/MobileSelect';
+import { shiftHours, shiftsInMonth, monthLabel, MONTHS_IT, yearsList } from '@/reportCalc';
 
 const eur = (v) => (v == null || isNaN(v) ? '—' : `€ ${Number(v).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
 const pct = (v) => (v == null || isNaN(v) ? '—' : `${v.toFixed(1)}%`);

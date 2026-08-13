@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
-import { layoutOverlappingShifts, toMin } from '@/lib/shiftLayout';
-import { appaltoColor } from '@/lib/appaltoColors';
+import { layoutOverlappingShifts, toMin } from '@/shiftLayout';
+import { appaltoColor } from '@/appaltoColors';
 
 const START_HOUR = 4; // first visible hour of the calendar
 const HOURS = Array.from({ length: 24 - START_HOUR }, (_, i) => i + START_HOUR); // 4..23

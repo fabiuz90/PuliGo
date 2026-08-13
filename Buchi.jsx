@@ -1,10 +1,10 @@
 import useOperationsData from '@/hooks/useOperationsData';
-import { buildCoverage } from '@/lib/coverage';
-import GapCard from '@/components/GapCard';
-import { EmptyState, Loading, PageHeader } from '@/components/common';
-import ExportButton from '@/components/ExportButton';
-import { fileDateSuffix } from '@/lib/reportCalc';
-import PullToRefresh from '@/components/PullToRefresh';
+import { buildCoverage } from '@/coverage';
+import GapCard from '@/GapCard';
+import { EmptyState, Loading, PageHeader } from '@/common';
+import ExportButton from '@/ExportButton';
+import { fileDateSuffix } from '@/reportCalc';
+import PullToRefresh from '@/PullToRefresh';
 export default function Buchi(){
   const {contracts,employees,shifts,loading,reload}=useOperationsData();if(loading)return <Loading/>;
   const gaps=buildCoverage(contracts,shifts,21).filter(x=>x.status!=='covered');

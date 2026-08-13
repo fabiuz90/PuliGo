@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, FileText, Users, CalendarDays, AlertTriangle, ShieldCheck, LogOut, BarChart3, TrendingUp, ChevronLeft, Trash2 } from 'lucide-react';
-import { useAuth } from '@/lib/AuthContext';
+import { useAuth } from '@/AuthContext';
 import useDrawerParam from '@/hooks/useDrawerParam';
-import BrandLogo from '@/components/BrandLogo';
-import MobileNav from '@/components/MobileNav';
-import DeleteAccountModal from '@/components/DeleteAccountModal';
+import BrandLogo from '@/BrandLogo';
+import MobileNav from '@/MobileNav';
+import DeleteAccountModal from '@/DeleteAccountModal';
 
 const links = [
   ['Dashboard', '/', LayoutDashboard], ['Appalti', '/appalti', FileText],

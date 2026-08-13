@@ -1,5 +1,5 @@
 import { FileSpreadsheet } from 'lucide-react';
-import { exportToExcel } from '@/lib/excelExport';
+import { exportToExcel } from '@/excelExport';
 
 export default function ExportButton({ sheets, filename, label = 'Esporta Excel' }) {
   const disabled = !sheets || sheets.length === 0;

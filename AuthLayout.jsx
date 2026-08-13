@@ -1,5 +1,5 @@
 import React from "react";
-import BrandLogo from "@/components/BrandLogo";
+import BrandLogo from "@/BrandLogo";
 
 export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
   return (

@@ -2,11 +2,11 @@ import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import useOperationsData from '@/hooks/useOperationsData';
-import { Loading, PageHeader, EmptyState } from '@/components/common';
-import ExportButton from '@/components/ExportButton';
-import MobileSelect from '@/components/MobileSelect';
-import { buildMonthlyReport, buildMonthGaps, monthLabel, shiftHours, eur, MONTHS_IT, yearsList } from '@/lib/reportCalc';
-import { contractDisplay } from '@/lib/codes';
+import { Loading, PageHeader, EmptyState } from '@/common';
+import ExportButton from '@/ExportButton';
+import MobileSelect from '@/MobileSelect';
+import { buildMonthlyReport, buildMonthGaps, monthLabel, shiftHours, eur, MONTHS_IT, yearsList } from '@/reportCalc';
+import { contractDisplay } from '@/codes';
 
 const appColumns = [
   { key: 'code', label: 'Codice', get: (a) => a.contract?.code || '', type: 'text' },

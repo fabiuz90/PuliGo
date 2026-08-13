@@ -2,12 +2,12 @@ import db from '@/db';
 
 import { useEffect, useState } from "react";
 
-import { useAuth } from "@/lib/AuthContext";
+import { useAuth } from "@/AuthContext";
 import { Plus, Trash2, ShieldCheck, User as UserIcon, Loader2, Mail } from "lucide-react";
-import { PageHeader, Modal, inputClass, Loading } from "@/components/common";
-import MobileSelect from "@/components/MobileSelect";
-import ExportButton from "@/components/ExportButton";
-import { fileDateSuffix } from "@/lib/reportCalc";
+import { PageHeader, Modal, inputClass, Loading } from "@/common";
+import MobileSelect from "@/MobileSelect";
+import ExportButton from "@/ExportButton";
+import { fileDateSuffix } from "@/reportCalc";
 
 export default function Admin() {
   const { user: currentUser } = useAuth();

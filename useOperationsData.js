@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import db from '@/db';
+import { supabase } from '@/supabase';
 
-import { nextEmpCode, nextContractCode } from '@/lib/codes';
+import { nextEmpCode, nextContractCode } from '@/codes';
 
 export default function useOperationsData() {
   const [data, setData] = useState({
@@ -16,16 +16,35 @@ export default function useOperationsData() {
     setLoading(true);
 
     try {
-      const [contracts, employees, shifts] = await Promise.all([
-        db.entities.Contract.list('-created_date'),
-        db.entities.Employee.list('last_name'),
-        db.entities.Shift.list('date'),
+      const [
+        { data: contracts, error: contractsError },
+        { data: employees, error: employeesError },
+        { data: shifts, error: shiftsError },
+      ] = await Promise.all([
+        supabase
+          .from('contracts')
+          .select('*')
+          .order('created_at', { ascending: false }),
+
+        supabase
+          .from('employees')
+          .select('*')
+          .order('last_name', { ascending: true }),
+
+        supabase
+          .from('shifts')
+          .select('*')
+          .order('date', { ascending: true }),
       ]);
 
+      if (contractsError) throw contractsError;
+      if (employeesError) throw employeesError;
+      if (shiftsError) throw shiftsError;
+
       setData({
-        contracts,
-        employees,
-        shifts,
+        contracts: contracts || [],
+        employees: employees || [],
+        shifts: shifts || [],
       });
     } finally {
       setLoading(false);
@@ -65,7 +84,14 @@ export default function useOperationsData() {
         });
 
         try {
-          await db.entities.Employee.bulkUpdate(updates);
+          await Promise.all(
+            updates.map(({ id, code }) =>
+              supabase
+                .from('employees')
+                .update({ code })
+                .eq('id', id)
+            )
+          );
         } catch {
           // Ignore code backfill errors.
         }
@@ -92,7 +118,14 @@ export default function useOperationsData() {
         });
 
         try {
-          await db.entities.Contract.bulkUpdate(updates);
+          await Promise.all(
+            updates.map(({ id, code }) =>
+              supabase
+                .from('contracts')
+                .update({ code })
+                .eq('id', id)
+            )
+          );
         } catch {
           // Ignore code backfill errors.
         }
@@ -124,7 +157,13 @@ export default function useOperationsData() {
     }));
 
     try {
-      const created = await db.entities.Shift.create(form);
+      const { data: created, error } = await supabase
+        .from('shifts')
+        .insert(form)
+        .select()
+        .single();
+
+      if (error) throw error;
 
       setData((current) => ({
         ...current,
@@ -155,7 +194,16 @@ export default function useOperationsData() {
     }));
 
     try {
-      return await db.entities.Shift.update(id, patch);
+      const { data: updated, error } = await supabase
+        .from('shifts')
+        .update(patch)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return updated;
     } catch (error) {
       await load();
       throw error;
@@ -170,7 +218,12 @@ export default function useOperationsData() {
     }));
 
     try {
-      await db.entities.Shift.delete(id);
+      const { error } = await supabase
+        .from('shifts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
     } catch (error) {
       await load();
       throw error;
@@ -190,7 +243,12 @@ export default function useOperationsData() {
     }));
 
     try {
-      const created = await db.entities.Shift.bulkCreate(records);
+      const { data: created, error } = await supabase
+        .from('shifts')
+        .insert(records)
+        .select();
+
+      if (error) throw error;
 
       const temporaryIds = new Set(
         temps.map((shift) => shift.id)
@@ -202,11 +260,11 @@ export default function useOperationsData() {
           ...current.shifts.filter(
             (shift) => !temporaryIds.has(shift.id)
           ),
-          ...created,
+          ...(created || []),
         ],
       }));
 
-      return created;
+      return created || [];
     } catch (error) {
       await load();
       throw error;
@@ -225,11 +283,12 @@ export default function useOperationsData() {
     }));
 
     try {
-      await db.entities.Shift.deleteMany({
-        id: {
-          $in: ids,
-        },
-      });
+      const { error } = await supabase
+        .from('shifts')
+        .delete()
+        .in('id', ids);
+
+      if (error) throw error;
     } catch (error) {
       await load();
       throw error;
