@@ -10,6 +10,7 @@ import ExportButton from '@/ExportButton';
 import { fileMonthSuffix } from '@/reportCalc';
 import { nextContractCode } from '@/codes';
 import useDrawerParam from '@/useDrawerParam';
+import { useToast } from '@/use-toast';
 
 const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 const filters = [['all', 'Tutti'], ['active', 'Attivi'], ['inactive', 'Inattivi'], ['with_services', 'Con servizi'], ['no_services', 'Senza servizi']];
@@ -18,6 +19,7 @@ const emptyContract = { client_name: '', site_name: '', address: '', status: 'ac
 export default function Appalti() {
   const { contracts, loading, reload } = useOperationsData();
   const contractDrawer = useDrawerParam('contract');
+  const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const editing = contractDrawer.value && contractDrawer.value !== 'new' ? contracts.find(c => c.id === contractDrawer.value) || null : null;
   const [contractDraft, setContractDraft] = useState(null);
@@ -26,7 +28,25 @@ export default function Appalti() {
   const openNew = () => { setContractDraft(emptyContract); contractDrawer.open('new'); };
   const openEdit = item => { setContractDraft(item); contractDrawer.open(item.id); };
   const closeContract = () => { setContractDraft(null); contractDrawer.close(); };
-  const save = async data => { setSaving(true); if (editing) { await db.entities.Contract.update(editing.id, data); } else { await db.entities.Contract.create({ ...data, code: nextContractCode(contracts) }); } setSaving(false); setContractDraft(null); contractDrawer.close(); reload(); };
+  const save = async data => {
+    setSaving(true);
+    try {
+      if (editing) {
+        await db.entities.Contract.update(editing.id, data);
+      } else {
+        await db.entities.Contract.create({ ...data, code: nextContractCode(contracts) });
+      }
+      setContractDraft(null);
+      contractDrawer.close();
+      await reload();
+      toast({ title: editing ? 'Appalto aggiornato' : 'Appalto salvato', description: 'L’operazione è stata completata.' });
+    } catch (error) {
+      console.error('[Supabase] Salvataggio appalto non riuscito:', error);
+      toast({ title: 'Salvataggio non riuscito', description: error.message || 'Controlla i dati e riprova.' });
+    } finally {
+      setSaving(false);
+    }
+  };
   const remove = async item => { if (window.confirm(`Eliminare l'appalto "${item.site_name}"?`)) { await db.entities.Contract.delete(item.id); reload(); } };
 
   const filtered = useMemo(() => {
