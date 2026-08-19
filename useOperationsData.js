@@ -5,6 +5,7 @@ import { nextEmpCode, nextContractCode } from '@/codes';
 
 export default function useOperationsData() {
   const [data, setData] = useState({
+    absences: [],
     contracts: [],
     employees: [],
     shifts: [],
@@ -20,6 +21,7 @@ export default function useOperationsData() {
         { data: contracts, error: contractsError },
         { data: employees, error: employeesError },
         { data: shifts, error: shiftsError },
+        { data: absences, error: absencesError },
       ] = await Promise.all([
         supabase
           .from('contracts')
@@ -35,13 +37,21 @@ export default function useOperationsData() {
           .from('shifts')
           .select('*')
           .order('date', { ascending: true }),
+
+        supabase
+          .from('absences')
+          .select('*')
+          .order('start_date', { ascending: true })
+          .order('start_time', { ascending: true }),
       ]);
 
       if (contractsError) throw contractsError;
       if (employeesError) throw employeesError;
       if (shiftsError) throw shiftsError;
+      if (absencesError) throw absencesError;
 
       setData({
+        absences: absences || [],
         contracts: contracts || [],
         employees: employees || [],
         shifts: shifts || [],

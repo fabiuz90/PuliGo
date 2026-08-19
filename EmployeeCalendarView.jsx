@@ -3,7 +3,7 @@ import WeekCalendar from '@/WeekCalendar';
 import { inputClass } from '@/common';
 import MobileSelect from '@/MobileSelect';
 
-export default function EmployeeCalendarView({ shifts, contracts, employees, week, onEdit, onDelete, appaltoColors }) {
+export default function EmployeeCalendarView({ shifts, contracts, employees, absences, week, onEdit, onDelete, appaltoColors }) {
   const sorted = useMemo(
     () =>
       [...employees]
@@ -31,6 +31,7 @@ export default function EmployeeCalendarView({ shifts, contracts, employees, wee
           shifts={empShifts}
           contracts={contracts}
           employees={employees}
+          absences={absences}
           week={week}
           onEdit={onEdit}
           onDelete={onDelete}

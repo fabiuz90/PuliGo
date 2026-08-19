@@ -5,6 +5,7 @@ const tableMap = {
   Contract: 'contracts',
   Employee: 'employees',
   Shift: 'shifts',
+  Absence: 'absences',
   WhatsappAudit: 'whatsapp_audits',
 };
 

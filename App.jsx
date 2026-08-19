@@ -24,6 +24,7 @@ import Buchi from '@/Buchi';
 import ResocontoMensile from '@/ResocontoMensile';
 import MarginiAppalti from '@/MarginiAppalti';
 import Statistiche from '@/Statistiche';
+import Assenze from '@/Assenze';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -65,6 +66,7 @@ const AuthenticatedApp = () => {
           <Route path="/resoconto" element={<ResocontoMensile />} />
           <Route path="/margini" element={<MarginiAppalti />} />
           <Route path="/statistiche" element={<Statistiche />} />
+          <Route path="/assenze" element={<Assenze />} />
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<Admin />} />
           </Route>

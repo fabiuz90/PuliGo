@@ -4,13 +4,14 @@ import { it } from 'date-fns/locale';
 import { Pencil, Trash2 } from 'lucide-react';
 import { layoutOverlappingShifts, toMin } from '@/shiftLayout';
 import { appaltoColor } from '@/appaltoColors';
+import { getShiftAbsenceConflict } from '@/absenceConflict';
 
 const START_HOUR = 4; // first visible hour of the calendar
 const HOURS = Array.from({ length: 24 - START_HOUR }, (_, i) => i + START_HOUR); // 4..23
 const HOUR_PX = 56; // height of each hour row in px — single shared vertical scale
 const MIN_CARD_WIDTH = 120; // minimum readable card width in px
 
-export default function WeekCalendar({ shifts, contracts, employees, week, onEdit, onDelete, appaltoColors }) {
+export default function WeekCalendar({ shifts, contracts, employees, absences = [], week, onEdit, onDelete, appaltoColors }) {
   const scrollRef = useRef(null);
   const todayRef = useRef(null);
   useEffect(() => {
@@ -72,6 +73,7 @@ export default function WeekCalendar({ shifts, contracts, employees, week, onEdi
                     {laid.map(({ shift: s, lane, spanEnd, totalColumns }) => {
                       const c = contracts.find((x) => x.id === s.contract_id);
                       const e = employees.find((x) => x.id === s.employee_id);
+                      const absence = getShiftAbsenceConflict(s, absences);
                       const top = ((toMin(s.start_time) / 60) - START_HOUR) * HOUR_PX;
                       const height = ((toMin(s.end_time) - toMin(s.start_time)) / 60) * HOUR_PX;
                       const span = spanEnd - lane + 1;
@@ -81,7 +83,8 @@ export default function WeekCalendar({ shifts, contracts, employees, week, onEdi
                       return (
                         <div
                           key={s.id}
-                          className="absolute rounded-lg text-white px-2 py-1 text-[11px] overflow-hidden group shadow-sm hover:shadow-md hover:z-10"
+                          className={`absolute rounded-lg text-white px-2 py-1 text-[11px] overflow-hidden group shadow-sm hover:shadow-md hover:z-10 ${absence ? 'border-2 border-red-500' : ''}`}
+                          title={absence ? `⚠️ Dipendente assente: ${absence.type}` : undefined}
                           style={{
                             top,
                             height,
@@ -92,6 +95,7 @@ export default function WeekCalendar({ shifts, contracts, employees, week, onEdi
                         >
                           <b className="block truncate">{s.start_time}–{s.end_time}</b>
                           <span className="block truncate opacity-90">{c?.site_name}</span>
+                          {absence && <span className="block truncate font-semibold text-red-100">⚠️ Dipendente assente</span>}
                           {height > 44 && (
                             <span className="block truncate opacity-70">
                               {e?.first_name} {e?.last_name}

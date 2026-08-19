@@ -3,8 +3,9 @@ import { AlertTriangle } from 'lucide-react';
 import { inputClass } from '@/common';
 import MobileSelect from '@/MobileSelect';
 import { findConflict } from '@/shiftConflict';
+import { getShiftAbsenceConflict } from '@/absenceConflict';
 
-export default function ShiftForm({ initial, preset, contracts, employees, shifts, onSubmit, saving }) {
+export default function ShiftForm({ initial, preset, contracts, employees, shifts, absences = [], onSubmit, saving }) {
   const [form, setForm] = useState(initial || { employee_id: '', contract_id: preset.contract_id || '', date: preset.date || '', start_time: preset.start_time || '08:00', end_time: preset.end_time || '10:00' });
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const eligible = employees.filter((e) => e.status === 'active');
@@ -16,6 +17,9 @@ export default function ShiftForm({ initial, preset, contracts, employees, shift
       : null;
   const conflictContract = conflict ? contracts.find((c) => c.id === conflict.contract_id) : null;
   const blocked = Boolean(conflict);
+  const absenceConflict = form.employee_id && form.date && form.start_time && form.end_time
+    ? getShiftAbsenceConflict({ employee_id: form.employee_id, date: form.date, start_time: form.start_time, end_time: form.end_time }, absences)
+    : null;
 
   // Per-employee availability for the selected date/time (to flag occupied employees in the dropdown).
   const occupiedIds = new Set();
@@ -46,6 +50,17 @@ export default function ShiftForm({ initial, preset, contracts, employees, shift
           <div>
             <p className="font-semibold">Attenzione: il dipendente selezionato è già occupato su un altro appalto, verifica bene!</p>
             <p className="mt-1 text-red-600">{conflictContract?.site_name || 'Appalto'} · {conflict.date} {conflict.start_time}–{conflict.end_time}</p>
+          </div>
+        </div>
+      )}
+
+      {absenceConflict && (
+        <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+          <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold">Attenzione: il dipendente risulta assente durante questo turno.</p>
+            {absenceConflict.type === 'permesso' && <p className="mt-1 text-amber-700">Permesso: {absenceConflict.start_time?.slice(0, 5)}–{absenceConflict.end_time?.slice(0, 5)}. Puoi comunque procedere con il salvataggio.</p>}
+            {absenceConflict.type !== 'permesso' && <p className="mt-1 text-amber-700">{absenceConflict.type === 'ferie' ? 'Ferie' : 'Malattia'} per l’intera giornata. Puoi comunque procedere con il salvataggio.</p>}
           </div>
         </div>
       )}

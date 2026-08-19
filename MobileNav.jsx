@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, Users, AlertTriangle, Grid, X, FileText, BarChart3, TrendingUp, ShieldCheck, LogOut, Trash2 } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Users, AlertTriangle, Grid, X, FileText, BarChart3, TrendingUp, ShieldCheck, LogOut, Trash2, CalendarOff } from 'lucide-react';
 
 const tabs = [
   ['Dashboard', '/', LayoutDashboard],
@@ -11,6 +11,7 @@ const tabs = [
 
 const moreLinks = [
   ['Appalti', '/appalti', FileText],
+  ['Assenze', '/assenze', CalendarOff],
   ['Resoconto', '/resoconto', BarChart3],
   ['Margini', '/margini', TrendingUp],
   ['Statistiche', '/statistiche', BarChart3],

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, FileText, Users, CalendarDays, AlertTriangle, ShieldCheck, LogOut, BarChart3, TrendingUp, ChevronLeft, Trash2 } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, CalendarDays, AlertTriangle, ShieldCheck, LogOut, BarChart3, TrendingUp, ChevronLeft, Trash2, CalendarOff } from 'lucide-react';
 import { useAuth } from '@/AuthContext';
 import useDrawerParam from '@/useDrawerParam';
 import BrandLogo from '@/BrandLogo';
@@ -10,7 +10,7 @@ import DeleteAccountModal from '@/DeleteAccountModal';
 
 const links = [
   ['Dashboard', '/', LayoutDashboard], ['Appalti', '/appalti', FileText],
-  ['Dipendenti', '/dipendenti', Users], ['Turni', '/turni', CalendarDays], ['Buchi', '/buchi', AlertTriangle],
+  ['Dipendenti', '/dipendenti', Users], ['Turni', '/turni', CalendarDays], ['Assenze', '/assenze', CalendarOff], ['Buchi', '/buchi', AlertTriangle],
   ['Resoconto Mensile', '/resoconto', BarChart3], ['Margini Appalti', '/margini', TrendingUp],
   ['Statistiche', '/statistiche', BarChart3]
 ];

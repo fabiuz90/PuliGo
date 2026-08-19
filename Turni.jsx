@@ -129,9 +129,9 @@ export default function Turni() {
         </div>
 
         {view === 'calendar'
-          ? <WeekCalendar shifts={weekShifts} contracts={data.contracts} employees={data.employees} week={week} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />
+          ? <WeekCalendar shifts={weekShifts} contracts={data.contracts} employees={data.employees} absences={data.absences} week={week} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />
           : view === 'employee'
-          ? <EmployeeCalendarView shifts={weekShifts} contracts={data.contracts} employees={data.employees} week={week} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />
+          ? <EmployeeCalendarView shifts={weekShifts} contracts={data.contracts} employees={data.employees} absences={data.absences} week={week} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />
           : <ShiftList shifts={data.shifts} contracts={data.contracts} employees={data.employees} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />}
 
         <div className="mt-5"><WeekNav week={week} setWeek={setWeek} /></div>
@@ -150,7 +150,7 @@ export default function Turni() {
           </Modal>
         )}
 
-        {shiftOpen && <Modal title={editing ? 'Modifica turno' : 'Nuovo turno'} onClose={shiftDrawer.close}><ShiftForm initial={editing} preset={preset} contracts={data.contracts} employees={data.employees} shifts={data.shifts} onSubmit={save} saving={saving} /></Modal>}
+        {shiftOpen && <Modal title={editing ? 'Modifica turno' : 'Nuovo turno'} onClose={shiftDrawer.close}><ShiftForm initial={editing} preset={preset} contracts={data.contracts} employees={data.employees} shifts={data.shifts} absences={data.absences} onSubmit={save} saving={saving} /></Modal>}
       </div>
     </PullToRefresh>
   );
