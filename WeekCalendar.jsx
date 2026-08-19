@@ -10,6 +10,7 @@ const START_HOUR = 4; // first visible hour of the calendar
 const HOURS = Array.from({ length: 24 - START_HOUR }, (_, i) => i + START_HOUR); // 4..23
 const HOUR_PX = 56; // height of each hour row in px — single shared vertical scale
 const MIN_CARD_WIDTH = 120; // minimum readable card width in px
+const displayTime = (time) => String(time || '').slice(0, 5);
 
 export default function WeekCalendar({ shifts, contracts, employees, absences = [], week, onEdit, onDelete, appaltoColors }) {
   const scrollRef = useRef(null);
@@ -93,7 +94,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                             backgroundColor: color,
                           }}
                         >
-                          <b className="block truncate">{s.start_time}–{s.end_time}</b>
+                          <b className="block truncate">{displayTime(s.start_time)}–{displayTime(s.end_time)}</b>
                           <span className="block truncate opacity-90">{c?.site_name}</span>
                           {absence && <span className="block truncate font-semibold text-red-100">⚠️ Dipendente assente</span>}
                           {height > 44 && (
