@@ -22,12 +22,11 @@ export function exportToExcel(sheets, filename) {
         { wch: 12 },
         { wch: 14 },
         { wch: 14 },
-        { wch: 14 },
       ];
       ws['!rows'] = rows.map((row, rowIndex) => ({
-        hpt: rowIndex === 0 ? 24 : rowIndex === 2 || row[0] === 'TOTALE DIPENDENTE' ? 20 : 18,
+        hpt: rowIndex === 0 ? 24 : row[0] === 'TOTALE DIPENDENTE' || row[0] === 'Data' ? 20 : 18,
       }));
-      ws['!freeze'] = { xSplit: 0, ySplit: 3 };
+      ws['!freeze'] = { xSplit: 0, ySplit: 5 };
       ws['!pageSetup'] = { orientation: 'landscape', fitToWidth: 1, fitToHeight: 0 };
 
       rows.forEach((row, rowIndex) => {
@@ -38,12 +37,15 @@ export function exportToExcel(sheets, filename) {
           const isHeader = rowIndex > 2 && row[0] === 'Data';
           const isEmployee = columnIndex === 0 && typeof value === 'string' && value.startsWith('DIPENDENTE:');
           const isTotal = row[0] === 'TOTALE DIPENDENTE';
+          const isSummary = ['Giorni lavorati', 'Ore lavorate', 'Giorni ferie', 'Ore ferie', 'Ore permesso', 'Giorni malattia', 'Ore malattia'].includes(row[0]);
+          const isSummaryHours = ['Ore lavorate', 'Ore ferie', 'Ore permesso', 'Ore malattia'].includes(row[0]);
+          if ((rowIndex >= 5 && columnIndex >= 2 && typeof value === 'number') || (isSummaryHours && columnIndex === 1)) cell.z = '0.00';
           cell.s = {
-            font: { bold: rowIndex === 0 || rowIndex === 1 || isHeader || isEmployee || isTotal },
+            font: { bold: rowIndex === 0 || rowIndex === 1 || isHeader || isEmployee || isTotal || isSummary },
             fill: {
               patternType: 'solid',
               fgColor: {
-                rgb: rowIndex === 0 ? '163F3D' : isHeader ? 'E8F1F0' : isTotal ? 'DDF1E8' : isEmployee ? 'F2F7F6' : 'FFFFFF',
+                rgb: rowIndex === 0 ? '163F3D' : isHeader ? 'E8F1F0' : isTotal ? 'DDF1E8' : isEmployee ? 'F2F7F6' : isSummary ? 'F5FAF7' : 'FFFFFF',
               },
             },
             alignment: {

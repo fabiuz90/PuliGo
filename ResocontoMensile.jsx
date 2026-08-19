@@ -39,8 +39,9 @@ function buildEmployeeDailySheet(employees, shifts, absences, year, month) {
     .sort((a, b) => `${a.last_name || ''} ${a.first_name || ''}`.localeCompare(`${b.last_name || ''} ${b.first_name || ''}`, 'it'))
     .forEach((employee) => {
       const fullName = `${employee.last_name || ''} ${employee.first_name || ''}`.trim() || 'Dipendente sconosciuto';
-      rows.push([`DIPENDENTE: ${fullName}`, employee.code || '']);
-      rows.push(['Data', 'Giorno', 'Ore lavorate', 'Ferie', 'Permesso', 'Malattia', 'Totale ore']);
+      rows.push([`DIPENDENTE: ${fullName}`]);
+      rows.push([`Codice: ${employee.code || '—'}`]);
+      rows.push(['Data', 'Giorno', 'Ore lavorate', 'Ferie', 'Permesso', 'Malattia']);
 
       for (let day = monthStart; day <= monthEnd; day = addDays(day, 1)) {
         const date = format(day, 'yyyy-MM-dd');
@@ -60,7 +61,6 @@ function buildEmployeeDailySheet(employees, shifts, absences, year, month) {
           formatHours(ferieHours),
           formatHours(permissionHours),
           formatHours(malattiaHours),
-          formatHours(workedHours + ferieHours + permissionHours + malattiaHours),
         ]);
       }
 
@@ -70,11 +70,20 @@ function buildEmployeeDailySheet(employees, shifts, absences, year, month) {
           ferie: total.ferie + row[3],
           permission: total.permission + row[4],
           malattia: total.malattia + row[5],
-          overall: total.overall + row[6],
+          workedDays: total.workedDays + (row[2] > 0 ? 1 : 0),
+          ferieDays: total.ferieDays + (row[3] > 0 ? 1 : 0),
+          malattiaDays: total.malattiaDays + (row[5] > 0 ? 1 : 0),
         }),
-        { worked: 0, ferie: 0, permission: 0, malattia: 0, overall: 0 }
+        { worked: 0, ferie: 0, permission: 0, malattia: 0, workedDays: 0, ferieDays: 0, malattiaDays: 0 }
       );
-      rows.push(['TOTALE DIPENDENTE', '', formatHours(totals.worked), formatHours(totals.ferie), formatHours(totals.permission), formatHours(totals.malattia), formatHours(totals.overall)]);
+      rows.push(['TOTALE DIPENDENTE']);
+      rows.push(['Giorni lavorati', totals.workedDays]);
+      rows.push(['Ore lavorate', formatHours(totals.worked)]);
+      rows.push(['Giorni ferie', totals.ferieDays]);
+      rows.push(['Ore ferie', formatHours(totals.ferie)]);
+      rows.push(['Ore permesso', formatHours(totals.permission)]);
+      rows.push(['Giorni malattia', totals.malattiaDays]);
+      rows.push(['Ore malattia', formatHours(totals.malattia)]);
       rows.push([]);
     });
 
