@@ -1,5 +1,39 @@
 import * as XLSX from 'xlsx';
 
+const AUTO_FIT_MIN_WIDTH = 12;
+const AUTO_FIT_MAX_WIDTH = 42;
+
+function applyAutoFit(ws, rows) {
+  const columnCount = rows.reduce((maximum, row) => Math.max(maximum, row.length), 0);
+  const widths = Array.from({ length: columnCount }, (_, columnIndex) => {
+    const contentWidth = rows.reduce((maximum, row) => {
+      const value = row[columnIndex];
+      const text = value == null ? '' : String(value);
+      return Math.max(maximum, Array.from(text).length);
+    }, 0);
+
+    return { wch: Math.min(AUTO_FIT_MAX_WIDTH, Math.max(AUTO_FIT_MIN_WIDTH, contentWidth + 2)) };
+  });
+
+  ws['!cols'] = widths;
+
+  rows.forEach((row, rowIndex) => {
+    row.forEach((value, columnIndex) => {
+      if (typeof value !== 'string' || value.length <= AUTO_FIT_MAX_WIDTH) return;
+      const cell = ws[XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex })];
+      if (!cell) return;
+      cell.s = {
+        ...cell.s,
+        alignment: {
+          ...cell.s?.alignment,
+          wrapText: true,
+          vertical: cell.s?.alignment?.vertical || 'top',
+        },
+      };
+    });
+  });
+}
+
 // Export one or more sheets to an .xlsx file.
 // sheets: [{ name: string, rows: (string|number)[][] }]
 export function exportToExcel(sheets, filename) {
@@ -15,16 +49,6 @@ export function exportToExcel(sheets, filename) {
         left: { style: 'thin', color: { rgb: 'D9E2E3' } },
         right: { style: 'thin', color: { rgb: 'D9E2E3' } },
       };
-      const minimumWidths = [16, 12, 16, 12, 14, 14];
-      ws['!cols'] = minimumWidths.map((minimumWidth, columnIndex) => {
-        const contentWidth = rows.slice(3).reduce((maximum, row) => {
-          const value = row[columnIndex];
-          const text = value == null ? '' : String(value);
-          return Math.max(maximum, Array.from(text).length);
-        }, 0);
-
-        return { wch: Math.max(minimumWidth, contentWidth + 2) };
-      });
       ws['!rows'] = rows.map((row, rowIndex) => ({
         hpt: rowIndex === 0 ? 24 : row[0] === 'TOTALE DIPENDENTE' || row[0] === 'Data' ? 20 : 18,
       }));
@@ -61,6 +85,7 @@ export function exportToExcel(sheets, filename) {
       });
     }
 
+    applyAutoFit(ws, rows);
     XLSX.utils.book_append_sheet(wb, ws, String(name).slice(0, 31));
   });
   XLSX.writeFile(wb, filename);
