@@ -13,15 +13,20 @@ import useDrawerParam from '@/useDrawerParam';
 
 const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 const filters = [['all', 'Tutti'], ['active', 'Attivi'], ['inactive', 'Inattivi'], ['with_services', 'Con servizi'], ['no_services', 'Senza servizi']];
+const emptyContract = { client_name: '', site_name: '', address: '', status: 'active', service_requirements: [], monthly_revenue: '' };
 
 export default function Appalti() {
   const { contracts, loading, reload } = useOperationsData();
   const contractDrawer = useDrawerParam('contract');
   const [saving, setSaving] = useState(false);
   const editing = contractDrawer.value && contractDrawer.value !== 'new' ? contracts.find(c => c.id === contractDrawer.value) || null : null;
+  const [contractDraft, setContractDraft] = useState(null);
   const [query, setQuery] = useState(''), [filter, setFilter] = useState('all');
 
-  const save = async data => { setSaving(true); if (editing) { await db.entities.Contract.update(editing.id, data); } else { await db.entities.Contract.create({ ...data, code: nextContractCode(contracts) }); } setSaving(false); contractDrawer.close(); reload(); };
+  const openNew = () => { setContractDraft(emptyContract); contractDrawer.open('new'); };
+  const openEdit = item => { setContractDraft(item); contractDrawer.open(item.id); };
+  const closeContract = () => { setContractDraft(null); contractDrawer.close(); };
+  const save = async data => { setSaving(true); if (editing) { await db.entities.Contract.update(editing.id, data); } else { await db.entities.Contract.create({ ...data, code: nextContractCode(contracts) }); } setSaving(false); setContractDraft(null); contractDrawer.close(); reload(); };
   const remove = async item => { if (window.confirm(`Eliminare l'appalto "${item.site_name}"?`)) { await db.entities.Contract.delete(item.id); reload(); } };
 
   const filtered = useMemo(() => {
@@ -45,7 +50,7 @@ export default function Appalti() {
       <PageHeader eyebrow="Anagrafiche" title="Appalti" description="Cantieri e fabbisogni di servizio ricorrenti." action={
         <div className="flex gap-2">
           <ExportButton sheets={exportSheets} filename={`PuliGo_Appalti_${fileMonthSuffix()}.xlsx`} />
-          <button onClick={() => contractDrawer.open('new')} className="flex gap-2 bg-[#163f3d] text-white px-4 py-2.5 rounded-xl font-semibold text-sm"><Plus size={18} />Nuovo appalto</button>
+          <button onClick={openNew} className="flex gap-2 bg-[#163f3d] text-white px-4 py-2.5 rounded-xl font-semibold text-sm"><Plus size={18} />Nuovo appalto</button>
         </div>
       } />
 
@@ -88,7 +93,7 @@ export default function Appalti() {
               {!c.service_requirements?.length && <span className="text-xs text-slate-400 flex items-center gap-1"><Clock3 size={14} />Nessun servizio</span>}
             </div>
             <div className="flex justify-end gap-2 mt-3 pt-3 border-t">
-              <button onClick={() => contractDrawer.open(c.id)} className="w-11 h-11 grid place-items-center rounded-lg hover:bg-slate-100" aria-label="Modifica appalto"><Pencil size={18} /></button>
+              <button onClick={() => openEdit(c)} className="w-11 h-11 grid place-items-center rounded-lg hover:bg-slate-100" aria-label="Modifica appalto"><Pencil size={18} /></button>
               <button onClick={() => remove(c)} className="w-11 h-11 grid place-items-center rounded-lg hover:bg-red-50 text-red-600" aria-label="Elimina appalto"><Trash2 size={18} /></button>
             </div>
           </article>
@@ -96,7 +101,7 @@ export default function Appalti() {
       </div>
       {!filtered.length && <EmptyState text="Nessun appalto corrisponde alla ricerca" />}
 
-      {contractDrawer.isOpen && <Modal title={editing ? 'Modifica appalto' : 'Nuovo appalto'} onClose={contractDrawer.close}><ContractForm initial={editing} onSubmit={save} saving={saving} /></Modal>}
+      {contractDrawer.isOpen && <Modal title={editing ? 'Modifica appalto' : 'Nuovo appalto'} onClose={closeContract}><ContractForm initial={contractDraft || editing || emptyContract} onChange={setContractDraft} onSubmit={save} saving={saving} /></Modal>}
     </div>
   );
 }
