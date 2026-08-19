@@ -15,14 +15,16 @@ export function exportToExcel(sheets, filename) {
         left: { style: 'thin', color: { rgb: 'D9E2E3' } },
         right: { style: 'thin', color: { rgb: 'D9E2E3' } },
       };
-      ws['!cols'] = [
-        { wch: 16 },
-        { wch: 12 },
-        { wch: 16 },
-        { wch: 12 },
-        { wch: 14 },
-        { wch: 14 },
-      ];
+      const minimumWidths = [16, 12, 16, 12, 14, 14];
+      ws['!cols'] = minimumWidths.map((minimumWidth, columnIndex) => {
+        const contentWidth = rows.slice(3).reduce((maximum, row) => {
+          const value = row[columnIndex];
+          const text = value == null ? '' : String(value);
+          return Math.max(maximum, Array.from(text).length);
+        }, 0);
+
+        return { wch: Math.max(minimumWidth, contentWidth + 2) };
+      });
       ws['!rows'] = rows.map((row, rowIndex) => ({
         hpt: rowIndex === 0 ? 24 : row[0] === 'TOTALE DIPENDENTE' || row[0] === 'Data' ? 20 : 18,
       }));
