@@ -17,44 +17,64 @@ export default function useOperationsData() {
     setLoading(true);
 
     try {
-      const [
-        { data: contracts, error: contractsError },
-        { data: employees, error: employeesError },
-        { data: shifts, error: shiftsError },
-        { data: absences, error: absencesError },
-      ] = await Promise.all([
-        supabase
-          .from('contracts')
-          .select('*')
-          .order('created_at', { ascending: false }),
+      const loadTable = async (table, query) => {
+        const { data: rows, error } = await query;
 
-        supabase
-          .from('employees')
-          .select('*')
-          .order('last_name', { ascending: true }),
+        if (error) {
+          console.error(`[Supabase] Failed to load table: ${table}`, {
+            table,
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          });
+          return { table, error };
+        }
 
-        supabase
-          .from('shifts')
-          .select('*')
-          .order('date', { ascending: true }),
+        return { table, rows: rows || [] };
+      };
 
-        supabase
-          .from('absences')
-          .select('*')
-          .order('start_date', { ascending: true })
-          .order('start_time', { ascending: true }),
+      const results = await Promise.all([
+        loadTable(
+          'contracts',
+          supabase
+            .from('contracts')
+            .select('*')
+            .order('created_at', { ascending: false })
+        ),
+        loadTable(
+          'employees',
+          supabase
+            .from('employees')
+            .select('*')
+            .order('last_name', { ascending: true })
+        ),
+        loadTable(
+          'shifts',
+          supabase
+            .from('shifts')
+            .select('*')
+            .order('date', { ascending: true })
+        ),
+        loadTable(
+          'absences',
+          supabase
+            .from('absences')
+            .select('*')
+            .order('start_date', { ascending: true })
+            .order('start_time', { ascending: true })
+        ),
       ]);
 
-      if (contractsError) throw contractsError;
-      if (employeesError) throw employeesError;
-      if (shiftsError) throw shiftsError;
-      if (absencesError) throw absencesError;
+      setData((current) => {
+        const next = { ...current };
 
-      setData({
-        absences: absences || [],
-        contracts: contracts || [],
-        employees: employees || [],
-        shifts: shifts || [],
+        results.forEach(({ table, rows, error }) => {
+          if (error) return;
+          next[table] = rows;
+        });
+
+        return next;
       });
     } finally {
       setLoading(false);

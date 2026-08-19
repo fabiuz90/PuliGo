@@ -5,8 +5,58 @@ import * as XLSX from 'xlsx';
 export function exportToExcel(sheets, filename) {
   if (!sheets || !sheets.length) return;
   const wb = XLSX.utils.book_new();
-  sheets.forEach(({ name, rows }) => {
+  sheets.forEach(({ name, rows, options }) => {
     const ws = XLSX.utils.aoa_to_sheet(rows);
+
+    if (options?.employeeDaily) {
+      const thinBorder = {
+        top: { style: 'thin', color: { rgb: 'D9E2E3' } },
+        bottom: { style: 'thin', color: { rgb: 'D9E2E3' } },
+        left: { style: 'thin', color: { rgb: 'D9E2E3' } },
+        right: { style: 'thin', color: { rgb: 'D9E2E3' } },
+      };
+      ws['!cols'] = [
+        { wch: 16 },
+        { wch: 12 },
+        { wch: 16 },
+        { wch: 12 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 14 },
+      ];
+      ws['!rows'] = rows.map((row, rowIndex) => ({
+        hpt: rowIndex === 0 ? 24 : rowIndex === 2 || row[0] === 'TOTALE DIPENDENTE' ? 20 : 18,
+      }));
+      ws['!freeze'] = { xSplit: 0, ySplit: 3 };
+      ws['!pageSetup'] = { orientation: 'landscape', fitToWidth: 1, fitToHeight: 0 };
+
+      rows.forEach((row, rowIndex) => {
+        row.forEach((value, columnIndex) => {
+          const cell = ws[XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex })];
+          if (!cell) return;
+          if (rowIndex >= 3 && columnIndex >= 2 && typeof value === 'number') cell.z = '0.00';
+          const isHeader = rowIndex > 2 && row[0] === 'Data';
+          const isEmployee = columnIndex === 0 && typeof value === 'string' && value.startsWith('DIPENDENTE:');
+          const isTotal = row[0] === 'TOTALE DIPENDENTE';
+          cell.s = {
+            font: { bold: rowIndex === 0 || rowIndex === 1 || isHeader || isEmployee || isTotal },
+            fill: {
+              patternType: 'solid',
+              fgColor: {
+                rgb: rowIndex === 0 ? '163F3D' : isHeader ? 'E8F1F0' : isTotal ? 'DDF1E8' : isEmployee ? 'F2F7F6' : 'FFFFFF',
+              },
+            },
+            alignment: {
+              horizontal: columnIndex === 0 || columnIndex === 1 ? 'left' : 'right',
+              vertical: 'center',
+            },
+            border: thinBorder,
+          };
+          if (rowIndex === 0) cell.s.font.color = { rgb: 'FFFFFF' };
+        });
+      });
+    }
+
     XLSX.utils.book_append_sheet(wb, ws, String(name).slice(0, 31));
   });
   XLSX.writeFile(wb, filename);

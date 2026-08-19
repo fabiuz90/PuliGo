@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { format } from 'date-fns';
+import { addDays, endOfMonth, format, startOfMonth } from 'date-fns';
 import { it } from 'date-fns/locale';
 import useOperationsData from '@/useOperationsData';
 import { Loading, PageHeader, EmptyState } from '@/common';
@@ -27,6 +27,59 @@ const fmtAppCell = (col, a) => {
   if (col.key === 'shifts') return a.shifts;
   return col.get(a);
 };
+
+const formatHours = (value) => Number(value.toFixed(2));
+
+function buildEmployeeDailySheet(employees, shifts, absences, year, month) {
+  const rows = [['Resoconto giornaliero per dipendente'], [`${MONTHS_IT[month]} ${year}`], []];
+  const monthStart = startOfMonth(new Date(year, month, 1));
+  const monthEnd = endOfMonth(monthStart);
+
+  [...employees]
+    .sort((a, b) => `${a.last_name || ''} ${a.first_name || ''}`.localeCompare(`${b.last_name || ''} ${b.first_name || ''}`, 'it'))
+    .forEach((employee) => {
+      const fullName = `${employee.last_name || ''} ${employee.first_name || ''}`.trim() || 'Dipendente sconosciuto';
+      rows.push([`DIPENDENTE: ${fullName}`, employee.code || '']);
+      rows.push(['Data', 'Giorno', 'Ore lavorate', 'Ferie', 'Permesso', 'Malattia', 'Totale ore']);
+
+      for (let day = monthStart; day <= monthEnd; day = addDays(day, 1)) {
+        const date = format(day, 'yyyy-MM-dd');
+        const dayShifts = shifts.filter((shift) => shift.employee_id === employee.id && shift.date === date);
+        const dayAbsences = absences.filter((absence) => absence.employee_id === employee.id && absence.start_date <= date && absence.end_date >= date);
+        const workedHours = dayShifts.reduce((total, shift) => total + shiftHours(shift), 0);
+        const ferieHours = dayAbsences.some((absence) => absence.type === 'ferie') ? 8 : 0;
+        const malattiaHours = dayAbsences.some((absence) => absence.type === 'malattia') ? 8 : 0;
+        const permissionHours = dayAbsences
+          .filter((absence) => absence.type === 'permesso' && absence.start_date === date)
+          .reduce((total, absence) => total + (Number(absence.duration_hours) || 0), 0);
+
+        rows.push([
+          format(day, 'dd/MM/yyyy'),
+          format(day, 'EEE', { locale: it }),
+          formatHours(workedHours),
+          formatHours(ferieHours),
+          formatHours(permissionHours),
+          formatHours(malattiaHours),
+          formatHours(workedHours + ferieHours + permissionHours + malattiaHours),
+        ]);
+      }
+
+      const totals = rows.slice(-(monthEnd.getDate() - monthStart.getDate() + 1)).reduce(
+        (total, row) => ({
+          worked: total.worked + row[2],
+          ferie: total.ferie + row[3],
+          permission: total.permission + row[4],
+          malattia: total.malattia + row[5],
+          overall: total.overall + row[6],
+        }),
+        { worked: 0, ferie: 0, permission: 0, malattia: 0, overall: 0 }
+      );
+      rows.push(['TOTALE DIPENDENTE', '', formatHours(totals.worked), formatHours(totals.ferie), formatHours(totals.permission), formatHours(totals.malattia), formatHours(totals.overall)]);
+      rows.push([]);
+    });
+
+  return rows;
+}
 
 export default function ResocontoMensile() {
   const data = useOperationsData();
@@ -61,7 +114,7 @@ export default function ResocontoMensile() {
 
   const sheets = [
     { name: 'Riepilogo', rows: [['Resoconto Mensile', `${MONTHS_IT[month]} ${year}`], [], ['Ore totali', report.totalHours.toFixed(2)], ['Turni totali', report.totalShifts], ['Giornate lavorative', report.workingDays], ['Ore scoperte (h)', gaps.uncoveredHours.toFixed(2)]] },
-    { name: 'Per Dipendente', rows: [['Codice', 'Dipendente', 'Giorni lavorati', 'Costo €', 'Turni', 'Ore totali'], ...empRows.map(([id, e]) => [e.employee?.code || '', e.employee ? `${e.employee.last_name} ${e.employee.first_name}` : '—', e.days.size, e.cost.toFixed(2), e.shifts, e.hours.toFixed(2)])] },
+    { name: 'Per Dipendente', rows: buildEmployeeDailySheet(data.employees, data.shifts, data.absences, year, month), options: { employeeDaily: true } },
     { name: 'Per Appalto', rows: [['Codice', 'Appalto', 'Cliente', 'Turni', 'Ore', 'Ricavo €', 'Costo €', 'Margine €', 'Margine %'], ...sortedAppRows.map(([cid, a]) => [a.contract?.code || '', a.contract?.site_name || '—', a.contract?.client_name || '', a.shifts, a.hours.toFixed(2), a.revenue.toFixed(2), a.cost.toFixed(2), a.marginEur.toFixed(2), a.marginPct == null ? 'n/d' : `${a.marginPct.toFixed(2)}%`])] },
     { name: 'Dettaglio Turni', rows: [['Data', 'Codice Dip.', 'Dipendente', 'Codice App.', 'Appalto', 'Inizio', 'Fine', 'Ore'], ...report.monthShifts.map((s) => { const e = data.employees.find((x) => x.id === s.employee_id); const c = data.contracts.find((x) => x.id === s.contract_id); return [s.date, e?.code || '', e ? `${e.last_name} ${e.first_name}` : '—', c?.code || '', c?.site_name || '—', s.start_time, s.end_time, shiftHours(s).toFixed(2)]; }).sort((a, b) => a[0].localeCompare(b[0]))] },
   ];
