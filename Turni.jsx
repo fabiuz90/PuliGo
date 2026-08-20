@@ -27,6 +27,7 @@ export default function Turni() {
   const preset = { contract_id: sp.get('contract') || '', date: sp.get('date') || '', start_time: sp.get('start') || '', end_time: sp.get('end') || '' };
   const { user } = useAuth();
   const [view, setView] = useState('calendar'), [week, setWeek] = useState(new Date()), [saving, setSaving] = useState(false), [copying, setCopying] = useState(false);
+  const [virtualPreset, setVirtualPreset] = useState(null);
   const [clearText, setClearText] = useState(''), [clearing, setClearing] = useState(false);
   const shiftDrawer = useDrawerParam('shift', { extraClear: ['contract', 'date', 'start', 'end'] });
   const clearDrawer = useDrawerParam('clear');
@@ -35,6 +36,8 @@ export default function Turni() {
   const editing = shiftDrawer.value && shiftDrawer.value !== 'new' ? data.shifts.find(s => s.id === shiftDrawer.value) || null : null;
   const presetOpen = Boolean(preset.contract_id) && !shiftDrawer.value;
   const shiftOpen = shiftDrawer.isOpen || presetOpen;
+  const openNew = () => { setVirtualPreset(null); shiftDrawer.open('new'); };
+  const closeShift = () => { setVirtualPreset(null); shiftDrawer.close(); };
 
   const save = async form => {
     const conflict = findConflict(data.shifts, { employeeId: form.employee_id, date: form.date, startTime: form.start_time, endTime: form.end_time, excludeId: editing?.id });
@@ -42,11 +45,19 @@ export default function Turni() {
     setSaving(true);
     try {
       if (editing) await data.updateShiftOpt(editing.id, form); else await data.createShiftOpt(form);
-      shiftDrawer.close();
+      closeShift();
     } finally { setSaving(false); }
   };
   const remove = async s => { if (window.confirm('Eliminare questo turno?')) { await data.deleteShiftOpt(s.id); } };
-  const edit = s => shiftDrawer.open(s.id);
+  const edit = s => {
+    if (s.virtual) {
+      setVirtualPreset({ contract_id: s.contract_id, date: s.date, start_time: s.start_time, end_time: s.end_time });
+      shiftDrawer.open('new');
+      return;
+    }
+    setVirtualPreset(null);
+    shiftDrawer.open(s.id);
+  };
 
   const appaltoColors = useMemo(() => buildAppaltoColorMap(data.shifts), [data.shifts]);
 
@@ -114,7 +125,7 @@ export default function Turni() {
             <button onClick={copyPrevWeek} disabled={copying} className="flex gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-50 disabled:opacity-60">
               <Copy size={18} />{copying ? 'Copia…' : 'Copia settimana precedente'}
             </button>
-            <button onClick={() => shiftDrawer.open('new')} className="flex gap-2 bg-[#163f3d] text-white px-4 py-2.5 rounded-xl font-semibold text-sm"><Plus size={18} />Nuovo turno</button>
+            <button onClick={openNew} className="flex gap-2 bg-[#163f3d] text-white px-4 py-2.5 rounded-xl font-semibold text-sm"><Plus size={18} />Nuovo turno</button>
             <button onClick={() => clearDrawer.open('1')} className="flex gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-red-100"><Trash2 size={18} />Cancella turni</button>
           </div>
         } />
@@ -150,7 +161,7 @@ export default function Turni() {
           </Modal>
         )}
 
-        {shiftOpen && <Modal title={editing ? 'Modifica turno' : 'Nuovo turno'} onClose={shiftDrawer.close}><ShiftForm initial={editing} preset={preset} contracts={data.contracts} employees={data.employees} shifts={data.shifts} absences={data.absences} onSubmit={save} saving={saving} /></Modal>}
+        {shiftOpen && <Modal title={editing ? 'Modifica turno' : 'Nuovo turno'} onClose={closeShift}><ShiftForm initial={editing} preset={virtualPreset || preset} contracts={data.contracts} employees={data.employees} shifts={data.shifts} absences={data.absences} onSubmit={save} saving={saving} /></Modal>}
       </div>
     </PullToRefresh>
   );

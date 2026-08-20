@@ -36,6 +36,7 @@ export default function EmployeeCalendarView({ shifts, contracts, employees, abs
           onEdit={onEdit}
           onDelete={onDelete}
           appaltoColors={appaltoColors}
+          includeUnassigned={false}
         />
       ) : (
         <div className="bg-white border rounded-2xl p-10 text-center text-slate-400">Nessun dipendente attivo.</div>
