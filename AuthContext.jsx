@@ -18,9 +18,9 @@ export const AuthProvider = ({ children }) => {
   const [authChecked, setAuthChecked] = useState(false);
   const [appPublicSettings, setAppPublicSettings] = useState(null);
 
-  const checkUserAuth = async () => {
+  const checkUserAuth = async ({ showLoading = true } = {}) => {
     try {
-      setIsLoadingAuth(true);
+      if (showLoading) setIsLoadingAuth(true);
       setAuthError(null);
 
       const {
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
 
       return null;
     } finally {
-      setIsLoadingAuth(false);
+      if (showLoading) setIsLoadingAuth(false);
       setAuthChecked(true);
     }
   };
@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      await checkUserAuth();
+      await checkUserAuth({ showLoading: false });
     });
 
     return () => {
