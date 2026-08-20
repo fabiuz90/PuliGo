@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Plus, Phone, Pencil, Trash2, Building2, MessageCircle } from 'lucide-react';
 
 import { useAuth } from '@/AuthContext';
+import { useToast } from '@/use-toast';
 import useOperationsData from '@/useOperationsData';
 import useDrawerParam from '@/useDrawerParam';
 import PullToRefresh from '@/PullToRefresh';
@@ -16,6 +17,7 @@ import { nextEmpCode } from '@/codes';
 
 export default function Dipendenti() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const { employees, contracts, shifts, loading, reload } = useOperationsData();
   const empDrawer = useDrawerParam('employee');
   const waDrawer = useDrawerParam('whatsapp');
@@ -25,8 +27,21 @@ export default function Dipendenti() {
 
   const save = async data => {
     setSaving(true);
-    if (editing) { await db.entities.Employee.update(editing.id, data); } else { await db.entities.Employee.create({ ...data, code: nextEmpCode(employees) }); }
-    setSaving(false); empDrawer.close(); reload();
+    try {
+      if (editing) {
+        await db.entities.Employee.update(editing.id, data);
+      } else {
+        await db.entities.Employee.create({ ...data, code: nextEmpCode(employees) });
+      }
+      await reload();
+      empDrawer.close();
+      toast({ title: editing ? 'Dipendente aggiornato' : 'Dipendente inserito', description: 'L’operazione è stata completata.' });
+    } catch (error) {
+      console.error('[Supabase] Salvataggio dipendente non riuscito:', error);
+      toast({ title: 'Salvataggio non riuscito', description: error.message || 'Controlla i dati e riprova.' });
+    } finally {
+      setSaving(false);
+    }
   };
   const remove = async e => { if (window.confirm(`Eliminare ${e.first_name} ${e.last_name}?`)) { await db.entities.Employee.delete(e.id); reload(); } };
   if (loading) return <Loading />;
