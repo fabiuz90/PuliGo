@@ -27,7 +27,7 @@ export default function Turni() {
   const preset = { contract_id: sp.get('contract') || '', date: sp.get('date') || '', start_time: sp.get('start') || '', end_time: sp.get('end') || '' };
   const { user } = useAuth();
   const [view, setView] = useState('calendar'), [week, setWeek] = useState(new Date()), [saving, setSaving] = useState(false), [copying, setCopying] = useState(false);
-  const [virtualPreset, setVirtualPreset] = useState(null), [selectedShift, setSelectedShift] = useState(null);
+  const [virtualPreset, setVirtualPreset] = useState(null);
   const [clearText, setClearText] = useState(''), [clearing, setClearing] = useState(false);
   const shiftDrawer = useDrawerParam('shift', { extraClear: ['contract', 'date', 'start', 'end'] });
   const clearDrawer = useDrawerParam('clear');
@@ -36,21 +36,19 @@ export default function Turni() {
   const editing = shiftDrawer.value && shiftDrawer.value !== 'new'
     ? data.shifts.find(s => String(s.id) === String(shiftDrawer.value)) || null
     : null;
-  const editTarget = selectedShift || editing;
   const presetOpen = Boolean(preset.contract_id) && !shiftDrawer.value;
   const shiftOpen = shiftDrawer.isOpen || presetOpen;
-  const openNew = () => { setVirtualPreset(null); setSelectedShift(null); shiftDrawer.open('new'); };
-  const closeShift = () => { setVirtualPreset(null); setSelectedShift(null); shiftDrawer.close(); };
+  const openNew = () => { setVirtualPreset(null); shiftDrawer.open('new'); };
+  const closeShift = () => { setVirtualPreset(null); shiftDrawer.close(); };
 
   const save = async form => {
-    const existingId = editTarget?.id ?? form.id;
-    const conflict = findConflict(data.shifts, { employeeId: form.employee_id, date: form.date, startTime: form.start_time, endTime: form.end_time, excludeId: existingId });
+    const conflict = findConflict(data.shifts, { employeeId: form.employee_id, date: form.date, startTime: form.start_time, endTime: form.end_time, excludeId: form.id });
     if (conflict) { const c = data.contracts.find(x => x.id === conflict.contract_id); toast({ title: 'Attenzione: il dipendente selezionato è già occupato su un altro appalto, verifica bene!', description: `${c?.site_name || 'Appalto'} · ${conflict.date} ${conflict.start_time}–${conflict.end_time}` }); return; }
     setSaving(true);
     try {
-      if (existingId != null && existingId !== '') {
+      if (form.id != null && form.id !== '') {
         const { id: _formId, ...patch } = form;
-        await data.updateShiftOpt(existingId, patch);
+        await data.updateShiftOpt(form.id, patch);
       } else {
         await data.createShiftOpt(form);
       }
@@ -60,12 +58,10 @@ export default function Turni() {
   const remove = async s => { if (window.confirm('Eliminare questo turno?')) { await data.deleteShiftOpt(s.id); } };
   const edit = s => {
     if (s.virtual) {
-      setSelectedShift(null);
       setVirtualPreset({ contract_id: s.contract_id, date: s.date, start_time: s.start_time, end_time: s.end_time });
       shiftDrawer.open('new');
       return;
     }
-    setSelectedShift(s);
     setVirtualPreset(null);
     shiftDrawer.open(s.id);
   };
@@ -172,7 +168,7 @@ export default function Turni() {
           </Modal>
         )}
 
-        {shiftOpen && <Modal title={editTarget ? 'Modifica turno' : 'Nuovo turno'} onClose={closeShift}><ShiftForm initial={editTarget} preset={virtualPreset || preset} contracts={data.contracts} employees={data.employees} shifts={data.shifts} absences={data.absences} onSubmit={save} saving={saving} /></Modal>}
+        {shiftOpen && <Modal title={editing ? 'Modifica turno' : 'Nuovo turno'} onClose={closeShift}><ShiftForm initial={editing} preset={virtualPreset || preset} contracts={data.contracts} employees={data.employees} shifts={data.shifts} absences={data.absences} onSubmit={save} saving={saving} /></Modal>}
       </div>
     </PullToRefresh>
   );
