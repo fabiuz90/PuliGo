@@ -11,7 +11,8 @@ const HOURS = Array.from({ length: 24 - START_HOUR }, (_, i) => i + START_HOUR);
 const HOUR_PX = 56; // height of each hour row in px — single shared vertical scale
 const MIN_CARD_WIDTH = 120; // minimum readable card width in px
 const displayTime = (time) => String(time || '').slice(0, 5);
-const sameTime = (left, right) => displayTime(left) === displayTime(right);
+const overlaps = (leftStart, leftEnd, rightStart, rightEnd) =>
+  toMin(leftStart) < toMin(rightEnd) && toMin(leftEnd) > toMin(rightStart);
 
 export default function WeekCalendar({ shifts, contracts, employees, absences = [], week, onEdit, onDelete, appaltoColors, includeUnassigned = true }) {
   const scrollRef = useRef(null);
@@ -41,8 +42,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
     const enrichedShifts = assignedShifts.map((shift) => {
       const match = dayRequirements.find(({ contract, requirement }) =>
         contract.id === shift.contract_id
-        && sameTime(requirement.start_time, shift.start_time)
-        && sameTime(requirement.end_time, shift.end_time)
+        && overlaps(requirement.start_time, requirement.end_time, shift.start_time, shift.end_time)
       );
 
       if (!match) return shift;
@@ -50,8 +50,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
       const requiredCount = Math.max(1, Number(match.requirement.employees_required) || 1);
       const assignedCount = assignedShifts.filter((candidate) =>
         candidate.contract_id === shift.contract_id
-        && sameTime(candidate.start_time, shift.start_time)
-        && sameTime(candidate.end_time, shift.end_time)
+        && overlaps(candidate.start_time, candidate.end_time, match.requirement.start_time, match.requirement.end_time)
       ).length;
 
       return { ...shift, coverageStatus: assignedCount < requiredCount ? 'partial' : 'covered', assignedCount, requiredCount };
@@ -61,8 +60,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
       const requiredCount = Math.max(1, Number(requirement.employees_required) || 1);
       const assignedCount = assignedShifts.filter((shift) =>
         shift.contract_id === contract.id
-        && sameTime(shift.start_time, requirement.start_time)
-        && sameTime(shift.end_time, requirement.end_time)
+        && overlaps(shift.start_time, shift.end_time, requirement.start_time, requirement.end_time)
       ).length;
 
       if (assignedCount < requiredCount) {
