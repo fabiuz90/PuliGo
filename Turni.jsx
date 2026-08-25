@@ -33,7 +33,9 @@ export default function Turni() {
   const clearDrawer = useDrawerParam('clear');
   const viewButtons = [['calendar', 'Calendario', CalendarDays], ['employee', 'Per dipendente', User], ['list', 'Elenco', List]];
 
-  const editing = shiftDrawer.value && shiftDrawer.value !== 'new' ? data.shifts.find(s => s.id === shiftDrawer.value) || null : null;
+  const editing = shiftDrawer.value && shiftDrawer.value !== 'new'
+    ? data.shifts.find(s => String(s.id) === String(shiftDrawer.value)) || null
+    : null;
   const presetOpen = Boolean(preset.contract_id) && !shiftDrawer.value;
   const shiftOpen = shiftDrawer.isOpen || presetOpen;
   const openNew = () => { setVirtualPreset(null); shiftDrawer.open('new'); };
