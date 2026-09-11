@@ -5,6 +5,7 @@ import { AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { layoutOverlappingShifts, toMin } from '@/shiftLayout';
 import { appaltoColor } from '@/appaltoColors';
 import { getShiftAbsenceConflict } from '@/absenceConflict';
+import { buildDayShiftCards } from '@/calendarShiftGrouping';
 
 const START_HOUR = 4; // first visible hour of the calendar
 const HOURS = Array.from({ length: 24 - START_HOUR }, (_, i) => i + START_HOUR); // 4..23
@@ -30,55 +31,14 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
   // Pre-compute the lane layout for each day.
   const dayLayouts = days.map((day) => {
     const key = format(day, 'yyyy-MM-dd');
-    const assignedShifts = shifts.filter((s) => s.date === key);
-    const dayRequirements = includeUnassigned
-      ? contracts
-        .filter((contract) => contract.status === 'active')
-        .flatMap((contract) => (contract.service_requirements || [])
-          .filter((requirement) => Number(requirement.day_of_week) === day.getDay())
-          .map((requirement) => ({ contract, requirement })))
-      : [];
-    const virtualShifts = [];
-    const enrichedShifts = assignedShifts.map((shift) => {
-      const match = dayRequirements.find(({ contract, requirement }) =>
-        contract.id === shift.contract_id
-        && overlaps(requirement.start_time, requirement.end_time, shift.start_time, shift.end_time)
-      );
-
-      if (!match) return shift;
-
-      const requiredCount = Math.max(1, Number(match.requirement.employees_required) || 1);
-      const assignedCount = assignedShifts.filter((candidate) =>
-        candidate.contract_id === shift.contract_id
-        && overlaps(candidate.start_time, candidate.end_time, match.requirement.start_time, match.requirement.end_time)
-      ).length;
-
-      return { ...shift, coverageStatus: assignedCount < requiredCount ? 'partial' : 'covered', assignedCount, requiredCount };
+    const groupedCards = buildDayShiftCards({
+      shifts,
+      contracts,
+      dayKey: key,
+      includeUnassigned,
+      employees,
     });
-
-    dayRequirements.forEach(({ contract, requirement }) => {
-      const requiredCount = Math.max(1, Number(requirement.employees_required) || 1);
-      const assignedCount = assignedShifts.filter((shift) =>
-        shift.contract_id === contract.id
-        && overlaps(shift.start_time, shift.end_time, requirement.start_time, requirement.end_time)
-      ).length;
-
-      if (assignedCount < requiredCount) {
-        virtualShifts.push({
-          id: `virtual:${contract.id}:${key}:${displayTime(requirement.start_time)}-${displayTime(requirement.end_time)}`,
-          virtual: true,
-          contract_id: contract.id,
-          date: key,
-          start_time: displayTime(requirement.start_time),
-          end_time: displayTime(requirement.end_time),
-          coverageStatus: assignedCount ? 'partial' : 'uncovered',
-          assignedCount,
-          requiredCount,
-        });
-      }
-    });
-
-    const laid = layoutOverlappingShifts([...enrichedShifts, ...virtualShifts]);
+    const laid = layoutOverlappingShifts(groupedCards);
     const maxLanes = laid.reduce((m, x) => Math.max(m, x.totalColumns), 1);
     return { key, day, laid, maxLanes };
   });
@@ -122,8 +82,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                     ))}
                     {laid.map(({ shift: s, lane, spanEnd, totalColumns }) => {
                       const c = contracts.find((x) => x.id === s.contract_id);
-                      const e = employees.find((x) => x.id === s.employee_id);
-                      const absence = s.virtual ? null : getShiftAbsenceConflict(s, absences);
+                      const absence = s.virtual || !s.realShifts?.length ? null : getShiftAbsenceConflict(s.realShifts[0], absences);
                       const hasCoverageWarning = s.coverageStatus === 'partial' || s.coverageStatus === 'uncovered';
                       const top = ((toMin(s.start_time) / 60) - START_HOUR) * HOUR_PX;
                       const height = ((toMin(s.end_time) - toMin(s.start_time)) / 60) * HOUR_PX;
@@ -131,6 +90,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                       const leftPct = (lane / totalColumns) * 100;
                       const widthPct = (span / totalColumns) * 100;
                       const color = appaltoColor(appaltoColors?.get(s.contract_id));
+                      const cardActionShift = s.realShifts?.[0] || s;
                       return (
                         <div
                           key={s.id}
@@ -152,14 +112,14 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                           {absence && <span className="block truncate font-semibold text-red-100"><AlertTriangle size={12} className="inline mr-1" />Dipendente assente</span>}
                           {hasCoverageWarning && <span className="block truncate font-semibold text-red-100"><AlertTriangle size={12} className="inline mr-1" />{s.coverageStatus === 'partial' ? 'Copertura incompleta' : 'Turno scoperto'}</span>}
                           {hasCoverageWarning && <span className="block truncate text-red-100">{s.assignedCount}/{s.requiredCount} dipendenti assegnati</span>}
-                          {!s.virtual && height > 44 && (
-                            <span className="block truncate opacity-70">
-                              {e?.first_name} {e?.last_name}
+                          {height > 44 && (s.employees || []).map((person) => (
+                            <span key={person.id} className={`block truncate ${person.kind === 'placeholder' ? 'text-red-100 font-medium' : 'opacity-80'}`}>
+                              {person.kind === 'placeholder' ? '⚠ Dipendente non assegnato' : person.name}
                             </span>
-                          )}
+                          ))}
                           {!s.virtual && <div className="flex gap-1.5 absolute right-1.5 top-1.5 opacity-0 group-hover:opacity-100">
-                            <button onClick={() => onEdit(s)} className="bg-white/20 rounded p-1.5" aria-label="Modifica turno"><Pencil size={12} /></button>
-                            <button onClick={() => onDelete(s)} className="bg-white/20 rounded p-1.5" aria-label="Elimina turno"><Trash2 size={12} /></button>
+                            <button onClick={() => onEdit(cardActionShift)} className="bg-white/20 rounded p-1.5" aria-label="Modifica turno"><Pencil size={12} /></button>
+                            <button onClick={() => onDelete(cardActionShift)} className="bg-white/20 rounded p-1.5" aria-label="Elimina turno"><Trash2 size={12} /></button>
                           </div>}
                         </div>
                       );
