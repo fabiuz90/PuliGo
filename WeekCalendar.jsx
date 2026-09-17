@@ -10,6 +10,7 @@ const START_HOUR = 4; // first visible hour of the calendar
 const HOURS = Array.from({ length: 24 - START_HOUR }, (_, i) => i + START_HOUR); // 4..23
 const HOUR_PX = 56; // height of each hour row in px — single shared vertical scale
 const MIN_CARD_WIDTH = 120; // minimum readable card width in px
+const MIN_CARD_HEIGHT = 80; // enough space for time, site, counter, and warning
 const displayTime = (time) => String(time || '').slice(0, 5);
 const overlaps = (leftStart, leftEnd, rightStart, rightEnd) =>
   toMin(leftStart) < toMin(rightEnd) && toMin(leftEnd) > toMin(rightStart);
@@ -125,6 +126,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                       const hasCoverageWarning = s.coverageStatus === 'partial' || s.coverageStatus === 'uncovered';
                       const top = ((toMin(s.start_time) / 60) - START_HOUR) * HOUR_PX;
                       const height = ((toMin(s.end_time) - toMin(s.start_time)) / 60) * HOUR_PX;
+                      const visualHeight = Math.max(height, MIN_CARD_HEIGHT);
                       const span = spanEnd - lane + 1;
                       const leftPct = (lane / totalColumns) * 100;
                       const widthPct = (span / totalColumns) * 100;
@@ -145,6 +147,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                           style={{
                             top,
                             height,
+                            minHeight: MIN_CARD_HEIGHT,
                             left: `calc(${leftPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
                             backgroundColor: statusColor,
@@ -155,7 +158,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                           {absence && <span className="block truncate font-semibold text-red-700"><AlertTriangle size={12} className="inline mr-1" />Dipendente assente</span>}
                           <span className="block truncate">{s.assignedCount}/{s.requiredCount} dipendenti assegnati</span>
                           {hasCoverageWarning && <span className="block truncate font-semibold text-red-700"><AlertTriangle size={12} className="inline mr-1" />Turno scoperto</span>}
-                          {height > 44 && (s.employees || []).map((person) => (
+                          {visualHeight > 96 && (s.employees || []).map((person) => (
                             person.kind === 'employee' && <span key={person.id} className="block truncate opacity-80">{person.name}</span>
                           ))}
                           {!s.virtual && <div className="flex gap-1.5 absolute right-1.5 top-1.5 opacity-0 group-hover:opacity-100">
