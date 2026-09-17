@@ -22,7 +22,7 @@ export default function ShiftList({ shifts, contracts, employees, onEdit, onDele
                 <td>
                   <span className="inline-flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full shrink-0 bg-slate-300" />
-                    {c?.site_name}
+                    <span className="text-[15px] font-semibold">{c?.site_name}</span>
                   </span>
                 </td>
                 <td>{e?.last_name} {e?.first_name}</td>

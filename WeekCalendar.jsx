@@ -154,7 +154,7 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                           }}
                         >
                           <b className="block truncate">{displayTime(s.start_time)}–{displayTime(s.end_time)}</b>
-                          <span className="block truncate opacity-90">{c?.site_name}</span>
+                          <span className="block truncate text-xs font-semibold opacity-90">{c?.site_name}</span>
                           {absence && <span className="block truncate font-semibold text-red-700"><AlertTriangle size={12} className="inline mr-1" />Dipendente assente</span>}
                           <span className="block truncate">{s.assignedCount}/{s.requiredCount} dipendenti assegnati</span>
                           {hasCoverageWarning && <span className="block truncate font-semibold text-red-700"><AlertTriangle size={12} className="inline mr-1" />Turno scoperto</span>}
