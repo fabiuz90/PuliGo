@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { inputClass } from '@/common';
+import MobileSelect from '@/MobileSelect';
 import { findConflict } from '@/shiftConflict';
 import { getShiftAbsenceConflict } from '@/absenceConflict';
 
