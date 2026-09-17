@@ -1,6 +1,6 @@
 import db from '@/db';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { addDays, addWeeks, format, parseISO, startOfWeek } from 'date-fns';
 import { Plus, CalendarDays, List, Copy, User, Trash2 } from 'lucide-react';
 
@@ -16,7 +16,6 @@ import EmployeeCalendarView from '@/EmployeeCalendarView';
 import WeekNav from '@/WeekNav';
 import { Loading, Modal, PageHeader } from '@/common';
 import ExportButton from '@/ExportButton';
-import { buildAppaltoColorMap } from '@/appaltoColors';
 import { shiftHours } from '@/reportCalc';
 import { findConflict } from '@/shiftConflict';
 
@@ -42,15 +41,25 @@ export default function Turni() {
   const closeShift = () => { setVirtualPreset(null); shiftDrawer.close(); };
 
   const save = async form => {
-    const conflict = findConflict(data.shifts, { employeeId: form.employee_id, date: form.date, startTime: form.start_time, endTime: form.end_time, excludeId: form.id });
+    const employeeIds = [...new Set(form.employee_ids || (form.employee_id ? [form.employee_id] : []))];
+    const existingShiftIds = new Set(form.existing_shift_ids || (form.id == null ? [] : [form.id]));
+    const currentShifts = data.shifts.filter((shift) => existingShiftIds.has(shift.id));
+    const conflict = employeeIds.map((employeeId) => findConflict(data.shifts, { employeeId, date: form.date, startTime: form.start_time, endTime: form.end_time, excludeId: currentShifts.find((shift) => shift.employee_id === employeeId)?.id || form.id })).find(Boolean);
     if (conflict) { const c = data.contracts.find(x => x.id === conflict.contract_id); toast({ title: 'Attenzione: il dipendente selezionato è già occupato su un altro appalto, verifica bene!', description: `${c?.site_name || 'Appalto'} · ${conflict.date} ${conflict.start_time}–${conflict.end_time}` }); return; }
     setSaving(true);
     try {
       if (form.id != null && form.id !== '') {
-        const { id: _formId, ...patch } = form;
-        await data.updateShiftOpt(form.id, patch);
+        const retained = currentShifts.filter((shift) => employeeIds.includes(shift.employee_id));
+        const additions = employeeIds.filter((employeeId) => !retained.some((shift) => shift.employee_id === employeeId));
+        const { id: _formId, employee_id: _employeeId, employee_ids: _employeeIds, existing_shift_ids: _existingShiftIds, ...patch } = form;
+        await Promise.all(retained.map((shift) => data.updateShiftOpt(shift.id, { ...patch, employee_id: shift.employee_id })));
+        if (additions.length) await data.bulkCreateShiftsOpt(additions.map((employee_id) => ({ ...patch, employee_id })));
+        const removed = currentShifts.filter((shift) => !employeeIds.includes(shift.employee_id));
+        if (removed.length) await data.deleteShiftsOpt(removed.map((shift) => shift.id));
       } else {
-        await data.createShiftOpt(form);
+        const { id: _formId, employee_id: _employeeId, employee_ids: _employeeIds, existing_shift_ids: _existingShiftIds, ...record } = form;
+        if (employeeIds.length === 1) await data.createShiftOpt({ ...record, employee_id: employeeIds[0] });
+        else if (employeeIds.length) await data.bulkCreateShiftsOpt(employeeIds.map((employee_id) => ({ ...record, employee_id })));
       }
       closeShift();
     } finally { setSaving(false); }
@@ -65,8 +74,6 @@ export default function Turni() {
     setVirtualPreset(null);
     shiftDrawer.open(s.id);
   };
-
-  const appaltoColors = useMemo(() => buildAppaltoColorMap(data.shifts), [data.shifts]);
 
   if (data.loading) return <Loading />;
   const start = startOfWeek(week, { weekStartsOn: 1 }), end = addWeeks(start, 1);
@@ -147,10 +154,10 @@ export default function Turni() {
         </div>
 
         {view === 'calendar'
-          ? <WeekCalendar shifts={weekShifts} contracts={data.contracts} employees={data.employees} absences={data.absences} week={week} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />
+          ? <WeekCalendar shifts={weekShifts} contracts={data.contracts} employees={data.employees} absences={data.absences} week={week} onEdit={edit} onDelete={remove} />
           : view === 'employee'
-          ? <EmployeeCalendarView shifts={weekShifts} contracts={data.contracts} employees={data.employees} absences={data.absences} week={week} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />
-          : <ShiftList shifts={data.shifts} contracts={data.contracts} employees={data.employees} onEdit={edit} onDelete={remove} appaltoColors={appaltoColors} />}
+          ? <EmployeeCalendarView shifts={weekShifts} contracts={data.contracts} employees={data.employees} absences={data.absences} week={week} onEdit={edit} onDelete={remove} />
+          : <ShiftList shifts={data.shifts} contracts={data.contracts} employees={data.employees} onEdit={edit} onDelete={remove} />}
 
         <div className="mt-5"><WeekNav week={week} setWeek={setWeek} /></div>
 

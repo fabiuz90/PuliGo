@@ -1,9 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { layoutOverlappingShifts, toMin } from '@/shiftLayout';
-import { appaltoColor } from '@/appaltoColors';
 import { getShiftAbsenceConflict } from '@/absenceConflict';
 import { buildDayShiftCards } from '@/calendarShiftGrouping';
 
@@ -15,14 +14,31 @@ const displayTime = (time) => String(time || '').slice(0, 5);
 const overlaps = (leftStart, leftEnd, rightStart, rightEnd) =>
   toMin(leftStart) < toMin(rightEnd) && toMin(leftEnd) > toMin(rightStart);
 
-export default function WeekCalendar({ shifts, contracts, employees, absences = [], week, onEdit, onDelete, appaltoColors, includeUnassigned = true }) {
+export default function WeekCalendar({ shifts, contracts, employees, absences = [], week, onEdit, onDelete, includeUnassigned = true }) {
+  const topScrollRef = useRef(null);
   const scrollRef = useRef(null);
+  const contentRef = useRef(null);
   const todayRef = useRef(null);
+  const [contentWidth, setContentWidth] = useState(0);
+
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return undefined;
+
+    const updateContentWidth = () => setContentWidth(content.scrollWidth);
+    updateContentWidth();
+    const observer = new ResizeObserver(updateContentWidth);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [shifts, contracts, employees, week, includeUnassigned]);
+
   useEffect(() => {
     if (todayRef.current && scrollRef.current) {
-      scrollRef.current.scrollLeft = Math.max(0, todayRef.current.offsetLeft - 8);
+      const left = Math.max(0, todayRef.current.offsetLeft - 8);
+      scrollRef.current.scrollLeft = left;
+      if (topScrollRef.current) topScrollRef.current.scrollLeft = left;
     }
-  }, []);
+  }, [contentWidth]);
   const start = startOfWeek(week, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
   const todayKey = format(new Date(), 'yyyy-MM-dd');
@@ -46,7 +62,23 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
   return (
     <div className="bg-white border rounded-2xl overflow-hidden flex flex-col">
       <div className="flex">
-        {/* Hours gutter — fixed, stays put during horizontal scroll */}
+        <div className="w-16 shrink-0 border-r" style={{ minWidth: 64 }} />
+        <div
+          className="flex-1 min-w-0 overflow-x-auto h-4"
+          ref={topScrollRef}
+          onScroll={(event) => {
+            if (scrollRef.current && scrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
+              scrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
+            }
+          }}
+          aria-label="Scorrimento orizzontale calendario"
+        >
+          <div style={{ width: contentWidth || '100%', height: 1 }} />
+        </div>
+      </div>
+
+      <div className="flex">
+        {/* Hours gutter stays fixed while the day columns scroll horizontally. */}
         <div className="w-16 shrink-0 border-r" style={{ minWidth: 64 }}>
           <div className="h-14 border-b bg-slate-50" />
           <div className="relative" style={{ height: gridHeight }}>
@@ -58,9 +90,16 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
           </div>
         </div>
 
-        {/* Day columns — scroll horizontally when a day needs more width */}
-        <div className="flex-1 overflow-x-auto" ref={scrollRef}>
-          <div className="flex">
+        <div
+          className="flex-1 min-w-0 overflow-x-auto"
+          ref={scrollRef}
+          onScroll={(event) => {
+            if (topScrollRef.current && topScrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
+              topScrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
+            }
+          }}
+        >
+          <div className="flex" ref={contentRef}>
             {dayLayouts.map(({ key, day, laid, maxLanes }) => {
               const isToday = key === todayKey;
               return (
@@ -89,12 +128,16 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                       const span = spanEnd - lane + 1;
                       const leftPct = (lane / totalColumns) * 100;
                       const widthPct = (span / totalColumns) * 100;
-                      const color = appaltoColor(appaltoColors?.get(s.contract_id));
+                      const statusColor = s.coverageStatus === 'uncovered'
+                        ? '#fee2e2'
+                        : s.coverageStatus === 'partial'
+                        ? '#ffedd5'
+                        : '#dcfce7';
                       const cardActionShift = s.realShifts?.[0] || s;
                       return (
                         <div
                           key={s.id}
-                          className={`absolute rounded-lg text-white px-2 py-1 text-[11px] overflow-hidden group shadow-sm hover:shadow-md hover:z-10 ${absence || hasCoverageWarning ? 'border-2 border-red-500' : ''} ${s.virtual ? 'cursor-pointer' : ''}`}
+                          className={`absolute rounded-lg border border-slate-300 text-slate-700 px-2 py-1 text-[11px] overflow-hidden group shadow-sm hover:shadow-md hover:z-10 ${s.virtual ? 'cursor-pointer' : ''}`}
                           title={s.virtual ? 'Apri assegnazione turno' : absence ? `⚠️ Dipendente assente: ${absence.type}` : undefined}
                           onClick={s.virtual ? () => onEdit(s) : undefined}
                           role={s.virtual ? 'button' : undefined}
@@ -104,18 +147,16 @@ export default function WeekCalendar({ shifts, contracts, employees, absences = 
                             height,
                             left: `calc(${leftPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
-                            backgroundColor: color,
+                            backgroundColor: statusColor,
                           }}
                         >
                           <b className="block truncate">{displayTime(s.start_time)}–{displayTime(s.end_time)}</b>
                           <span className="block truncate opacity-90">{c?.site_name}</span>
-                          {absence && <span className="block truncate font-semibold text-red-100"><AlertTriangle size={12} className="inline mr-1" />Dipendente assente</span>}
-                          {hasCoverageWarning && <span className="block truncate font-semibold text-red-100"><AlertTriangle size={12} className="inline mr-1" />{s.coverageStatus === 'partial' ? 'Copertura incompleta' : 'Turno scoperto'}</span>}
-                          {hasCoverageWarning && <span className="block truncate text-red-100">{s.assignedCount}/{s.requiredCount} dipendenti assegnati</span>}
+                          {absence && <span className="block truncate font-semibold text-red-700"><AlertTriangle size={12} className="inline mr-1" />Dipendente assente</span>}
+                          <span className="block truncate">{s.assignedCount}/{s.requiredCount} dipendenti assegnati</span>
+                          {hasCoverageWarning && <span className="block truncate font-semibold text-red-700"><AlertTriangle size={12} className="inline mr-1" />Turno scoperto</span>}
                           {height > 44 && (s.employees || []).map((person) => (
-                            <span key={person.id} className={`block truncate ${person.kind === 'placeholder' ? 'text-red-100 font-medium' : 'opacity-80'}`}>
-                              {person.kind === 'placeholder' ? '⚠ Dipendente non assegnato' : person.name}
-                            </span>
+                            person.kind === 'employee' && <span key={person.id} className="block truncate opacity-80">{person.name}</span>
                           ))}
                           {!s.virtual && <div className="flex gap-1.5 absolute right-1.5 top-1.5 opacity-0 group-hover:opacity-100">
                             <button onClick={() => onEdit(cardActionShift)} className="bg-white/20 rounded p-1.5" aria-label="Modifica turno"><Pencil size={12} /></button>
